@@ -1,0 +1,8 @@
+# application-local.yml — Backend chạy ngoài Docker, DB host = localhost
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:attendance_db}
+    username: ${POSTGRES_USER:attendance_user}
+    password: ${POSTGRES_PASSWORD:attendance_pass}
+  jpa:
+    show-sql: true

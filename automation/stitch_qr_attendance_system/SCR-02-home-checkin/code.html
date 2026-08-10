@@ -1,0 +1,228 @@
+<!DOCTYPE html><html lang="vi"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Chấm Công QR</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#d3e4fe",
+                        "tertiary-fixed-dim": "#ffb599",
+                        "on-surface": "#0b1c30",
+                        "primary-fixed-dim": "#b8c4ff",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#370e00",
+                        "on-error": "#ffffff",
+                        "primary-container": "#1e40af",
+                        "surface-container": "#e5eeff",
+                        "secondary-fixed": "#7ffc97",
+                        "on-primary-container": "#a8b8ff",
+                        "tertiary-container": "#872d00",
+                        "on-secondary-fixed-variant": "#005320",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-error-container": "#93000a",
+                        "surface": "#f8f9ff",
+                        "outline": "#757684",
+                        "secondary": "#006e2d",
+                        "surface-container-high": "#dce9ff",
+                        "surface-dim": "#cbdbf5",
+                        "tertiary-fixed": "#ffdbce",
+                        "primary-fixed": "#dde1ff",
+                        "on-secondary-fixed": "#002109",
+                        "surface-variant": "#d3e4fe",
+                        "primary": "#00288e",
+                        "on-primary-fixed-variant": "#173bab",
+                        "background": "#f8f9ff",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#62df7d",
+                        "on-secondary-container": "#007230",
+                        "on-primary-fixed": "#001453",
+                        "inverse-surface": "#213145",
+                        "surface-tint": "#3755c3",
+                        "on-background": "#0b1c30",
+                        "on-surface-variant": "#444653",
+                        "secondary-container": "#7cf994",
+                        "surface-container-low": "#eff4ff",
+                        "on-tertiary-container": "#ffa582",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "outline-variant": "#c4c5d5",
+                        "surface-bright": "#f8f9ff",
+                        "inverse-primary": "#b8c4ff",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#611e00",
+                        "on-tertiary-fixed-variant": "#7f2b00",
+                        "on-tertiary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-margin": "20px",
+                        "xl": "32px",
+                        "md": "16px",
+                        "touch-target-min": "48px",
+                        "2xl": "48px",
+                        "sm": "8px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC; /* fallback */
+        }
+        .pulse-border {
+            animation: pulse-border 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% {
+                border-color: rgba(0, 40, 142, 1);
+            }
+            50% {
+                border-color: rgba(0, 40, 142, 0.3);
+            }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface h-screen flex flex-col overflow-hidden">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-container-margin h-touch-target-min w-full sticky top-0 z-50 bg-surface shadow-sm docked full-width top-0">
+<button class="flex items-center justify-center h-full w-touch-target-min text-on-surface-variant hover:bg-surface-container-high transition-colors active:scale-95 duration-100 rounded-full -ml-2">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary truncate">Chấm Công QR</h1>
+<button class="flex items-center justify-center h-full w-touch-target-min hover:bg-surface-container-high transition-colors active:scale-95 duration-100 rounded-full -mr-2">
+<img alt="User Profile" class="w-8 h-8 rounded-full object-cover border border-outline-variant" data-alt="A small, circular avatar portrait of a professional corporate employee. The person is smiling gently, wearing a clean, modern button-down shirt. The lighting is soft and bright, reflecting a modern corporate environment. The background is a subtle, out-of-focus office setting with cool white tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK9_H76YYXDhe-udwgmkF19KrSQW_Dk0auKqDF7NsrEHLF3bUdTzo-CSUjxzRNsagWqjEZW9V0eBzPWLAKwQxKdvIthZ3kR1il5-EsHenEstCQi_qZpVk6cx_xHfwLrbGUdAqafo_8d06cfr_CK2LEIYNZuVagHF5briYBKMXNrla3kD4DsT0rGO3EGqa3MbU4JnmN9zlL2wOBS5ofaTGu-keXy6KOcy1t4JA-lYyjAPEoetfceo8SQw">
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto px-container-margin pt-6 pb-32">
+<!-- Welcome Text -->
+<div class="mb-lg">
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Chào mừng,</h2>
+<p class="font-body-lg text-body-lg text-primary font-medium mt-1">NV001!</p>
+</div>
+<!-- Central QR Card (Glassmorphism inspired, but leaning into solid corporate trust) -->
+<div class="bg-surface-container-lowest rounded-xl border border-slate-200 shadow-[0px_4px_12px_rgba(30,64,175,0.05)] p-6 flex flex-col items-center justify-center mb-md relative overflow-hidden">
+<!-- Subtle background pattern for depth -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#b8c4ff 1px, transparent 1px); background-size: 16px 16px;"></div>
+<div class="relative w-48 h-48 border-4 border-primary rounded-xl pulse-border flex items-center justify-center mb-6 bg-surface">
+<span class="material-symbols-outlined text-[80px] text-primary" data-icon="qr_code_scanner" style="font-variation-settings: 'FILL' 0;">qr_code_scanner</span>
+<!-- Scanning line effect -->
+<div class="absolute top-0 left-0 w-full h-1 bg-secondary shadow-[0_0_8px_rgba(0,110,45,0.8)] opacity-70 animate-[scan_2s_ease-in-out_infinite]"></div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface text-center mb-2">Quét mã QR để chấm công</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center mb-8">Vui lòng đưa mã QR vào khung ngắm để xác nhận thời gian làm việc của bạn.</p>
+<!-- Primary Action Button -->
+<button class="w-full h-[52px] bg-primary text-on-primary font-label-md text-label-md rounded-lg flex items-center justify-center gap-2 active:scale-95 transition-transform duration-200 shadow-md">
+<span class="material-symbols-outlined text-xl" data-icon="photo_camera" style="font-variation-settings: 'FILL' 1;">photo_camera</span>
+                 Quét ngay
+             </button>
+</div>
+<!-- Status Message Area (Example: Distance Info - Warning/Info state) -->
+<div class="bg-surface-container rounded-lg p-4 flex items-start gap-3 border border-primary-fixed-dim shadow-sm">
+<span class="material-symbols-outlined text-primary mt-0.5" data-icon="location_on" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Vị trí hợp lệ</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">Bạn cách công ty 3.5m</p>
+</div>
+</div>
+<!-- Hidden Status Examples for reference/dynamic toggling -->
+<!-- Success State -->
+<!--
+        <div class="bg-secondary-container rounded-lg p-4 flex items-start gap-3 border border-secondary-fixed-dim shadow-sm mt-4">
+            <span class="material-symbols-outlined text-secondary mt-0.5" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            <div>
+                <p class="font-label-md text-label-md text-on-secondary-container">Chấm công thành công</p>
+                <p class="font-body-sm text-body-sm text-on-secondary-container opacity-80 mt-1">Thời gian: 07:55 AM</p>
+            </div>
+        </div>
+        -->
+<!-- Error State -->
+<!--
+        <div class="bg-error-container rounded-lg p-4 flex items-start gap-3 border border-error shadow-sm mt-4">
+            <span class="material-symbols-outlined text-error mt-0.5" data-icon="cancel" style="font-variation-settings: 'FILL' 1;">cancel</span>
+            <div>
+                <p class="font-label-md text-label-md text-on-error-container">Không thể chấm công</p>
+                <p class="font-body-sm text-body-sm text-on-error-container opacity-80 mt-1">Vị trí của bạn quá xa công ty (> 50m).</p>
+            </div>
+        </div>
+        -->
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-2xl px-base pb-safe bg-surface-container dark:bg-surface-container-highest shadow-[0px_-4px_12px_rgba(30,64,175,0.05)] docked full-width bottom-0 rounded-t-xl md:hidden"><!-- Chấm công (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 active:scale-90 duration-200 w-1/3" href="#">
+<span class="material-symbols-outlined text-2xl mb-1" data-icon="qr_code_scanner" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+<span class="font-label-sm text-label-sm">Chấm công</span>
+</a>
+<!-- Thống kê (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-highest transition-all active:scale-90 duration-200 w-1/3" href="#">
+<span class="material-symbols-outlined text-2xl mb-1" data-icon="bar_chart" style="font-variation-settings: 'FILL' 0;">bar_chart</span>
+<span class="font-label-sm text-label-sm">Thống kê</span>
+</a>
+<!-- Cá nhân (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-highest transition-all active:scale-90 duration-200 w-1/3" href="#">
+<span class="material-symbols-outlined text-2xl mb-1" data-icon="person" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label-sm text-label-sm">Cá nhân</span>
+</a></nav>
+<style>
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: calc(100% - 4px); opacity: 0; }
+        }
+        
+        /* Safe area padding for newer mobile devices */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            .pb-safe {
+                padding-bottom: env(safe-area-inset-bottom);
+                height: calc(48px + env(safe-area-inset-bottom));
+            }
+        }
+    </style>
+
+
+</body></html>

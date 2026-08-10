@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Đăng xuất - Chấm Công QR</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#b2c5ff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#0040a2",
+                        "on-surface": "#151c27",
+                        "surface-dim": "#d3daea",
+                        "tertiary-container": "#a33500",
+                        "on-secondary-container": "#52617d",
+                        "primary-fixed": "#dae2ff",
+                        "on-error": "#ffffff",
+                        "outline": "#737685",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-container": "#ffc6b2",
+                        "error-container": "#ffdad6",
+                        "primary-container": "#0052cc",
+                        "inverse-on-surface": "#ebf1ff",
+                        "surface-container-low": "#f0f3ff",
+                        "inverse-surface": "#2a313d",
+                        "surface-bright": "#f9f9ff",
+                        "on-primary-container": "#c4d2ff",
+                        "tertiary-fixed-dim": "#ffb59b",
+                        "on-tertiary": "#ffffff",
+                        "secondary-container": "#ceddfe",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#7b2600",
+                        "background": "#f9f9ff",
+                        "primary-fixed-dim": "#b2c5ff",
+                        "on-secondary-fixed": "#0b1c34",
+                        "secondary-fixed": "#d6e3ff",
+                        "surface-container": "#e7eefe",
+                        "on-tertiary-fixed": "#380d00",
+                        "on-secondary-fixed-variant": "#384762",
+                        "outline-variant": "#c3c6d6",
+                        "on-tertiary-fixed-variant": "#812800",
+                        "surface-variant": "#dce2f3",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#0c56d0",
+                        "on-primary-fixed": "#001848",
+                        "secondary-fixed-dim": "#b7c7e7",
+                        "surface": "#f9f9ff",
+                        "secondary": "#505f7b",
+                        "surface-container-highest": "#dce2f3",
+                        "on-surface-variant": "#434654",
+                        "primary": "#003d9b",
+                        "tertiary-fixed": "#ffdbcf",
+                        "on-background": "#151c27",
+                        "surface-container-high": "#e2e8f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "base": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-bold": ["Inter"],
+                        "label-md": ["Inter"],
+                        "display": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "display": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9f9ff;
+            /* Mobile first setup */
+            margin: 0 auto;
+            max-width: 375px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        /* Modal Overlay */
+        .modal-overlay {
+            background-color: rgba(21, 28, 39, 0.5); /* on-surface with opacity */
+            backdrop-filter: blur(2px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased">
+<!-- App Content (Underneath Modal) -->
+<div class="flex-1 flex flex-col pointer-events-none">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center h-16 px-margin-mobile w-full bg-surface dark:bg-surface-container-highest shadow-sm docked full-width top-0 z-10 text-primary dark:text-primary-fixed">
+<div class="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-on-primary font-headline-md">
+                NV
+            </div>
+<h1 class="text-headline-lg font-headline-lg font-bold text-primary dark:text-primary-fixed">Cá nhân</h1>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors active:scale-95 text-primary">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<!-- Main Content Area (Dimmed by overlay) -->
+<main class="flex-1 p-margin-mobile flex flex-col gap-lg">
+<!-- Simulated background content to give context -->
+<div class="w-full h-32 bg-surface-container rounded-lg opacity-30"></div>
+<div class="w-full h-16 bg-surface-container rounded-lg opacity-30"></div>
+<div class="w-full h-16 bg-surface-container rounded-lg opacity-30"></div>
+<div class="w-full h-16 bg-surface-container rounded-lg opacity-30"></div>
+</main>
+</div>
+<!-- Full Screen Modal Overlay -->
+<div class="absolute inset-0 z-40 modal-overlay flex items-center justify-center p-margin-mobile pb-24">
+<!-- Logout Confirmation Dialog -->
+<div class="bg-surface-container-lowest w-full rounded-xl p-lg shadow-[0px_4px_12px_rgba(0,0,0,0.1)] flex flex-col items-center text-center transform transition-all duration-300 scale-100">
+<!-- Icon -->
+<div class="mb-lg text-error">
+<span class="material-symbols-outlined !text-[64px] leading-none" data-icon="logout" style="font-variation-settings: 'FILL' 0;">logout</span>
+</div>
+<!-- Text Content -->
+<h2 class="text-headline-lg font-headline-lg text-on-surface mb-sm">Đăng xuất</h2>
+<p class="text-body-md font-body-md text-on-surface-variant mb-lg">Bạn có chắc muốn đăng xuất khỏi hệ thống?</p>
+<!-- Actions -->
+<div class="flex w-full gap-[12px]">
+<button class="flex-1 bg-surface-container text-primary font-label-bold py-[12px] px-lg rounded-lg hover:bg-surface-container-high transition-colors active:scale-95 h-[48px] flex items-center justify-center">
+                    Hủy
+                </button>
+<button class="flex-1 bg-error text-on-error font-label-bold py-[12px] px-lg rounded-lg hover:bg-red-800 transition-colors active:scale-95 shadow-[0px_2px_4px_rgba(0,0,0,0.05)] h-[48px] flex items-center justify-center">
+                    Đồng ý
+                </button>
+</div>
+</div>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full max-w-[375px] flex justify-around items-center bg-surface dark:bg-surface-container-low pb-safe border-t border-outline-variant dark:border-outline h-[56px] z-50">
+<!-- Inactive Tab: Check-in -->
+<button class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-high transition-colors active:scale-90 w-16 h-full">
+<span class="material-symbols-outlined mb-1" data-icon="qr_code_scanner">qr_code_scanner</span>
+<span class="text-label-md font-label-md">Check-in</span>
+</button>
+<!-- Inactive Tab: Thống kê -->
+<button class="flex flex-col items-center justify-center text-secondary dark:text-secondary-fixed-dim hover:bg-surface-container-high transition-colors active:scale-90 w-16 h-full">
+<span class="material-symbols-outlined mb-1" data-icon="calendar_month">calendar_month</span>
+<span class="text-label-md font-label-md">Thống kê</span>
+</button>
+<!-- Active Tab: Cá nhân -->
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed font-bold hover:bg-surface-container-high transition-colors active:scale-90 w-16 h-full">
+<span class="material-symbols-outlined mb-1" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="text-label-md font-label-md text-primary font-bold">Cá nhân</span>
+</button>
+</nav>
+</body></html>

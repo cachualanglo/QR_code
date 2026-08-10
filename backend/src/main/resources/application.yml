@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: attendance-api
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      timeout: 5000
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+jwt:
+  secret: ${JWT_SECRET:attendance-qr-system-jwt-secret-key-256bits-minimum-required-for-hmac-sha}
+  access-token-expiration-minutes: ${JWT_ACCESS_EXPIRATION_MINUTES:30}
+  refresh-token-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS:7}
+
+company:
+  latitude: ${COMPANY_LAT:10.7769}
+  longitude: ${COMPANY_LNG:106.7009}
+  radius-meters: ${COMPANY_RADIUS_METERS:10}

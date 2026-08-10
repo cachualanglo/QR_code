@@ -1,0 +1,9 @@
+# application-docker.yml — Backend trong Docker, DB host = postgres (service name)
+# QUY TẮC: KHÔNG dùng localhost trong container. Phải dùng tên service Docker.
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    show-sql: false

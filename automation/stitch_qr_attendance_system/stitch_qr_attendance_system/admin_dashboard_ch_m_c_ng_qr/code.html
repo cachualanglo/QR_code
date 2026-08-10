@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Chấm Công QR - Admin Dashboard</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#dce2f3",
+                    "on-background": "#151c27",
+                    "primary": "#003d9b",
+                    "error": "#ba1a1a",
+                    "outline": "#737685",
+                    "primary-fixed-dim": "#b2c5ff",
+                    "on-primary": "#ffffff",
+                    "surface-bright": "#f9f9ff",
+                    "on-primary-fixed-variant": "#0040a2",
+                    "on-secondary-fixed-variant": "#384762",
+                    "on-primary-fixed": "#001848",
+                    "inverse-on-surface": "#ebf1ff",
+                    "secondary": "#505f7b",
+                    "on-surface-variant": "#434654",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-tint": "#0c56d0",
+                    "error-container": "#ffdad6",
+                    "inverse-surface": "#2a313d",
+                    "outline-variant": "#c3c6d6",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-container": "#ffc6b2",
+                    "surface-container": "#e7eefe",
+                    "tertiary-container": "#a33500",
+                    "secondary-fixed": "#d6e3ff",
+                    "on-tertiary-fixed-variant": "#812800",
+                    "on-surface": "#151c27",
+                    "surface": "#f9f9ff",
+                    "secondary-fixed-dim": "#b7c7e7",
+                    "on-secondary-container": "#52617d",
+                    "on-secondary-fixed": "#0b1c34",
+                    "secondary-container": "#ceddfe",
+                    "tertiary-fixed": "#ffdbcf",
+                    "tertiary-fixed-dim": "#ffb59b",
+                    "on-tertiary-fixed": "#380d00",
+                    "tertiary": "#7b2600",
+                    "background": "#f9f9ff",
+                    "on-primary-container": "#c4d2ff",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#d3daea",
+                    "surface-container-high": "#e2e8f8",
+                    "surface-variant": "#dce2f3",
+                    "primary-fixed": "#dae2ff",
+                    "primary-container": "#0052cc",
+                    "on-error-container": "#93000a",
+                    "surface-container-low": "#f0f3ff",
+                    "inverse-primary": "#b2c5ff",
+                    "on-tertiary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "md": "16px",
+                    "lg": "24px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "gutter": "16px",
+                    "margin-mobile": "16px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "label-bold": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "display": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-bold": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "display": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Hide scrollbar for clean horizontal scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen flex flex-col">
+<!-- TopAppBar (From Shared Components JSON) -->
+<header class="flex justify-between items-center px-margin-mobile h-14 w-full sticky top-0 z-50 bg-surface dark:bg-surface-dim shadow-sm text-primary dark:text-primary-fixed-dim font-headline-md docked full-width">
+<!-- Leading Icon -->
+<button class="flex items-center justify-center p-2 rounded-full hover:bg-surface-container-high transition-colors active:scale-95 duration-100 text-on-surface-variant dark:text-outline-variant">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<!-- Headline / Brand -->
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim flex-1 text-center">
+            Chấm Công QR
+        </h1>
+<!-- Trailing Avatar -->
+<button aria-label="User Profile" class="flex items-center justify-center w-8 h-8 rounded-full bg-primary-container text-on-primary-container hover:bg-surface-container-high transition-colors active:scale-95 duration-100 overflow-hidden shadow-sm">
+<span class="material-symbols-outlined text-[20px]" data-icon="person">person</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 overflow-y-auto pb-24">
+<!-- Greeting Section -->
+<section class="px-margin-mobile pt-lg pb-md">
+<h2 class="font-display text-display text-on-background">Xin chào, Admin!</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Tổng quan điểm danh hôm nay</p>
+</section>
+<!-- Summary Stats (Horizontal Scroll) -->
+<section class="w-full">
+<div class="flex gap-md overflow-x-auto snap-x snap-mandatory px-margin-mobile pb-md pt-sm no-scrollbar">
+<!-- Total Employees -->
+<div class="snap-start min-w-[140px] flex-shrink-0 bg-surface-container rounded-xl p-md shadow-sm border-l-2 border-primary flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<span class="material-symbols-outlined text-primary text-opacity-80" data-icon="groups">groups</span>
+</div>
+<div class="mt-md">
+<span class="font-display text-display text-primary block">24</span>
+<span class="font-label-md text-label-md text-on-surface-variant mt-xs block">Tổng nhân viên</span>
+</div>
+</div>
+<!-- Checked In -->
+<div class="snap-start min-w-[140px] flex-shrink-0 bg-secondary-fixed rounded-xl p-md shadow-sm border-l-2 border-secondary flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<span class="material-symbols-outlined text-secondary text-opacity-80" data-icon="how_to_reg">how_to_reg</span>
+</div>
+<div class="mt-md">
+<span class="font-display text-display text-on-secondary-fixed block">18</span>
+<span class="font-label-md text-label-md text-on-surface-variant mt-xs block">Đã điểm danh</span>
+</div>
+</div>
+<!-- Pending -->
+<div class="snap-start min-w-[140px] flex-shrink-0 bg-tertiary-fixed rounded-xl p-md shadow-sm border-l-2 border-tertiary flex flex-col justify-between">
+<div class="flex items-start justify-between">
+<span class="material-symbols-outlined text-tertiary text-opacity-80" data-icon="pending_actions">pending_actions</span>
+</div>
+<div class="mt-md">
+<span class="font-display text-display text-on-tertiary-fixed block">6</span>
+<span class="font-label-md text-label-md text-on-surface-variant mt-xs block">Chưa điểm danh</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="px-margin-mobile mt-sm">
+<h3 class="font-headline-md text-headline-md mb-md text-on-background">Hành động nhanh</h3>
+<div class="flex flex-col gap-sm">
+<!-- Action Card 1 -->
+<button class="flex items-center w-full p-md bg-surface-container-lowest rounded-xl shadow-sm active:scale-95 duration-100 transition-transform">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center mr-md flex-shrink-0">
+<span class="material-symbols-outlined text-primary" data-icon="people">people</span>
+</div>
+<div class="flex-1 text-left">
+<span class="font-label-bold text-label-bold text-on-background block">Danh sách nhân viên</span>
+<span class="font-body-md text-body-md text-on-surface-variant block mt-xs">Xem tất cả nhân viên</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Action Card 2 -->
+<button class="flex items-center w-full p-md bg-surface-container-lowest rounded-xl shadow-sm active:scale-95 duration-100 transition-transform">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center mr-md flex-shrink-0">
+<span class="material-symbols-outlined text-secondary" data-icon="event_available">event_available</span>
+</div>
+<div class="flex-1 text-left">
+<span class="font-label-bold text-label-bold text-on-background block">Điểm danh hôm nay</span>
+<span class="font-body-md text-body-md text-on-surface-variant block mt-xs">18/24 đã điểm danh</span>
+</div>
+<span class="material-symbols-outlined text-outline-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Recent Check-ins List -->
+<section class="px-margin-mobile mt-lg">
+<div class="flex justify-between items-end mb-md">
+<h3 class="font-headline-md text-headline-md text-on-background">Điểm danh gần đây</h3>
+<button class="font-label-md text-label-md text-primary hover:underline">Xem tất cả</button>
+</div>
+<div class="flex flex-col gap-sm">
+<!-- Item 1 -->
+<div class="flex items-center p-md bg-surface-container-lowest rounded-xl shadow-sm border-l-2 border-secondary">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center font-label-bold text-label-bold text-on-secondary-fixed flex-shrink-0">
+                        NVA
+                    </div>
+<div class="flex-1 ml-md">
+<p class="font-label-bold text-label-bold text-on-background">Nguyễn Văn A</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Check-in lúc 08:15</p>
+</div>
+<div class="bg-secondary-fixed text-on-secondary-fixed px-3 py-1 rounded-full flex items-center gap-1 font-label-md text-label-md">
+<span class="material-symbols-outlined text-[14px]" data-icon="check_circle">check_circle</span>
+                        Đúng giờ
+                    </div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center p-md bg-surface-container-lowest rounded-xl shadow-sm border-l-2 border-tertiary">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed flex items-center justify-center font-label-bold text-label-bold text-on-tertiary-fixed flex-shrink-0">
+                        TVB
+                    </div>
+<div class="flex-1 ml-md">
+<p class="font-label-bold text-label-bold text-on-background">Trần Văn B</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Check-in lúc 08:42</p>
+</div>
+<div class="bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full flex items-center gap-1 font-label-md text-label-md">
+<span class="material-symbols-outlined text-[14px]" data-icon="schedule">schedule</span>
+                        Đi trễ
+                    </div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center p-md bg-surface-container-lowest rounded-xl shadow-sm border-l-2 border-secondary">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center font-label-bold text-label-bold text-on-secondary-fixed flex-shrink-0">
+                        LTC
+                    </div>
+<div class="flex-1 ml-md">
+<p class="font-label-bold text-label-bold text-on-background">Lê Thị C</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-xs">Check-in lúc 08:28</p>
+</div>
+<div class="bg-secondary-fixed text-on-secondary-fixed px-3 py-1 rounded-full flex items-center gap-1 font-label-md text-label-md">
+<span class="material-symbols-outlined text-[14px]" data-icon="check_circle">check_circle</span>
+                        Đúng giờ
+                    </div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (From Shared Components JSON) -->
+<!-- Applying explicit JSON structural strings and evaluating active tab logically as "Stats" for the dashboard -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 px-4 pb-2 bg-surface-container dark:bg-surface-container-highest shadow-[0px_-4px_12px_rgba(30,64,175,0.05)] docked full-width rounded-t-xl md:hidden">
+<!-- Tab 1: Scan (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner">qr_code_scanner</span>
+<span class="font-label-sm text-label-sm mt-1">Scan</span>
+</button>
+<!-- Tab 2: Stats (Active) -->
+<!-- Based on Dashboard intent, Stats is the closest logical match -->
+<button class="flex flex-col items-center justify-center bg-secondary-container dark:bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="bar_chart" data-weight="fill" style="font-variation-settings: 'FILL' 1;">bar_chart</span>
+<span class="font-label-sm text-label-sm mt-1 font-semibold">Stats</span>
+</button>
+<!-- Tab 3: Profile (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-4 py-1 hover:bg-surface-container-highest dark:hover:bg-surface-variant transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</button>
+</nav>
+</body></html>

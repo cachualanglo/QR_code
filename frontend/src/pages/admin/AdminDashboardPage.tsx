@@ -1,0 +1,159 @@
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getAllEmployees } from '@/services/admin'
+import { getDayStats } from '@/services/attendance'
+import type { EmployeeResponse, DayStatsResponse } from '@/lib/types'
+
+// ─── Component ──────────────────────────────────────────
+export default function AdminDashboardPage() {
+  const navigate = useNavigate()
+  const [employees, setEmployees] = useState<EmployeeResponse[]>([])
+  const [todayStats, setTodayStats] = useState<DayStatsResponse[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [empList, stats] = await Promise.all([
+          getAllEmployees(),
+          getDayStats(new Date().toISOString().slice(0, 10), new Date().toISOString().slice(0, 10)),
+        ])
+        setEmployees(empList || [])
+        setTodayStats(stats || [])
+      } catch {
+        // Ignore errors on dashboard load
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
+  const totalEmployees = employees.length
+  const checkedInToday = todayStats.filter(s => s.checkInTime).length
+  const pendingToday = totalEmployees - checkedInToday
+
+  return (
+    <div className="px-4 pt-4 pb-4">
+      {/* Greeting */}
+      <section className="mb-6">
+        <h2 className="text-2xl font-bold text-on-surface">Xin chào, Admin!</h2>
+        <p className="text-sm text-on-surface-variant mt-1">Tổng quan điểm danh hôm nay</p>
+      </section>
+
+      {/* Summary Stats - Horizontal Scroll */}
+      <section className="mb-6">
+        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 no-scrollbar">
+          {/* Total Employees */}
+          <div className="snap-start min-w-[140px] flex-shrink-0 bg-surface-container rounded-xl p-4 shadow-sm border-l-2 border-primary flex flex-col justify-between">
+            <span className="material-symbols-outlined text-primary opacity-80">groups</span>
+            <div className="mt-4">
+              <span className="text-3xl font-bold text-primary block">{loading ? '—' : totalEmployees}</span>
+              <span className="text-xs text-on-surface-variant mt-1 block">Tổng nhân viên</span>
+            </div>
+          </div>
+          {/* Checked In */}
+          <div className="snap-start min-w-[140px] flex-shrink-0 bg-[#dcfce7] rounded-xl p-4 shadow-sm border-l-2 border-[#1a7c3e] flex flex-col justify-between">
+            <span className="material-symbols-outlined text-[#1a7c3e] opacity-80">how_to_reg</span>
+            <div className="mt-4">
+              <span className="text-3xl font-bold text-[#1a7c3e] block">{loading ? '—' : checkedInToday}</span>
+              <span className="text-xs text-on-surface-variant mt-1 block">Đã điểm danh</span>
+            </div>
+          </div>
+          {/* Pending */}
+          <div className="snap-start min-w-[140px] flex-shrink-0 bg-[#fff8e1] rounded-xl p-4 shadow-sm border-l-2 border-[#7c5c00] flex flex-col justify-between">
+            <span className="material-symbols-outlined text-[#7c5c00] opacity-80">pending_actions</span>
+            <div className="mt-4">
+              <span className="text-3xl font-bold text-[#7c5c00] block">{loading ? '—' : pendingToday}</span>
+              <span className="text-xs text-on-surface-variant mt-1 block">Chưa điểm danh</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Actions */}
+      <section className="mb-6">
+        <h3 className="text-lg font-semibold mb-3 text-on-surface">Hành động nhanh</h3>
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={() => window.open('/kiosk/attendance', '_blank')}
+            className="flex items-center w-full p-4 bg-primary rounded-xl shadow-sm active:scale-95 duration-100 transition-transform"
+          >
+            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mr-3 flex-shrink-0">
+              <span className="material-symbols-outlined text-white">qr_code_2</span>
+            </div>
+            <div className="flex-1 text-left">
+              <span className="text-xs font-semibold text-white block">Mở Kiosk</span>
+              <span className="text-sm text-white/80 block mt-0.5">Màn hình QR chấm công</span>
+            </div>
+            <span className="material-symbols-outlined text-white/80">open_in_new</span>
+          </button>
+          <button
+            onClick={() => navigate('/admin/shifts')}
+            className="flex items-center w-full p-4 bg-surface-container-lowest rounded-xl shadow-sm active:scale-95 duration-100 transition-transform"
+          >
+            <div className="w-10 h-10 rounded-full bg-[#e8eaf6] flex items-center justify-center mr-3 flex-shrink-0">
+              <span className="material-symbols-outlined text-[#3949ab]">schedule</span>
+            </div>
+            <div className="flex-1 text-left">
+              <span className="text-xs font-semibold text-on-surface block">Quản lý ca làm việc</span>
+              <span className="text-sm text-on-surface-variant block mt-0.5">Thêm, sửa, xóa ca</span>
+            </div>
+            <span className="material-symbols-outlined text-outline-variant">chevron_right</span>
+          </button>
+          <button
+            onClick={() => navigate('/admin/employees')}
+            className="flex items-center w-full p-4 bg-surface-container-lowest rounded-xl shadow-sm active:scale-95 duration-100 transition-transform"
+          >
+            <div className="w-10 h-10 rounded-full bg-[#dae2ff] flex items-center justify-center mr-3 flex-shrink-0">
+              <span className="material-symbols-outlined text-primary">people</span>
+            </div>
+            <div className="flex-1 text-left">
+              <span className="text-xs font-semibold text-on-surface block">Danh sách nhân viên</span>
+              <span className="text-sm text-on-surface-variant block mt-0.5">Xem tất cả nhân viên</span>
+            </div>
+            <span className="material-symbols-outlined text-outline-variant">chevron_right</span>
+          </button>
+        </div>
+      </section>
+
+      {/* Recent Check-ins */}
+      <section>
+        <div className="flex justify-between items-end mb-3">
+          <h3 className="text-lg font-semibold text-on-surface">Nhân viên gần đây</h3>
+          <button
+            onClick={() => navigate('/admin/employees')}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            Xem tất cả
+          </button>
+        </div>
+        <div className="flex flex-col gap-2">
+          {employees.length === 0 ? (
+            <p className="text-center text-on-surface-variant py-4">Không có dữ liệu</p>
+          ) : (
+            employees.slice(0, 5).map((emp) => {
+              const initials = emp.employeeCode.slice(-2).toUpperCase()
+              return (
+                <div
+                  key={emp.id}
+                  onClick={() => navigate(`/admin/employees/${emp.id}`)}
+                  className="flex items-center p-4 bg-surface-container-lowest rounded-xl shadow-sm cursor-pointer active:bg-surface-container transition-colors"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#dcfce7] flex items-center justify-center text-xs font-semibold text-[#1a7c3e] flex-shrink-0">
+                    {initials}
+                  </div>
+                  <div className="ml-3 flex-1">
+                    <p className="text-sm font-medium text-on-surface">{emp.employeeCode}</p>
+                    <p className="text-xs text-on-surface-variant">{emp.role}</p>
+                  </div>
+                  <span className="material-symbols-outlined text-outline-variant">chevron_right</span>
+                </div>
+              )
+            })
+          )}
+        </div>
+      </section>
+    </div>
+  )
+}

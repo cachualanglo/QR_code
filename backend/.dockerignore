@@ -1,0 +1,26 @@
+# === IDE ===
+.git
+.gitignore
+.idea
+.vscode
+*.iml
+
+# === Build ===
+target/
+build/
+out/
+bin/
+
+# === Docs ===
+*.md
+
+# === Env ===
+.env
+.env.*
+
+# === Logs ===
+*.log
+
+# === OS ===
+.DS_Store
+Thumbs.db

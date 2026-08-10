@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+@theme {
+  /* Color Tokens — Material Design 3 from Stitch */
+  --color-primary: #003d9b;
+  --color-primary-container: #0052cc;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #c4d2ff;
+  --color-background: #f9f9ff;
+  --color-surface: #f9f9ff;
+  --color-surface-container: #e7eefe;
+  --color-surface-container-low: #f0f3ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-surface: #151c27;
+  --color-on-surface-variant: #434654;
+  --color-outline: #737685;
+  --color-outline-variant: #c3c6d6;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-success: #1a7c3e;
+  --color-success-container: #dcfce7;
+  --color-warning: #7c5c00;
+  --color-warning-container: #fff8e1;
+  --color-surface-high: #e2e8f8;
+  --color-surface-variant: #dce2f3;
+  --color-surface-container-high: #e2e8f8;
+
+  /* Typography */
+  --font-family-display: "Inter", sans-serif;
+  --font-family-body: "Inter", sans-serif;
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-full: 9999px;
+}
+
+/* Global Styles */
+body {
+  margin: 0;
+  font-family: var(--font-family-body);
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Mobile-first container */
+#root {
+  max-width: 430px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background-color: var(--color-background);
+  position: relative;
+}
+
+/* No-scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

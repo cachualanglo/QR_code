@@ -1,0 +1,35 @@
+# === Dependencies ===
+node_modules
+
+# === Build ===
+dist
+
+# === Git ===
+.git
+.gitignore
+
+# === Docker ===
+Dockerfile
+.dockerignore
+
+# === Docs ===
+*.md
+
+# === Env ===
+.env
+.env.*
+
+# === IDE ===
+.vscode
+.idea
+*.iml
+
+# === Test ===
+coverage
+.nyc_output
+test-results/
+playwright-report/
+
+# === OS ===
+.DS_Store
+Thumbs.db
