@@ -34,3 +34,18 @@ Thumbs.db
 # === Docker volumes (local dev) ===
 postgres-data/
 redis-data/
+
+# === NOT needed for deployment ===
+automation/
+requirements/
+docs/
+config/
+backend.zip
+*.zip
+playwright.config.ts
+package.json
+package-lock.json
+graphify-out/
+backend/build.gradle
+backend/settings.gradle
+backend/gradle/
