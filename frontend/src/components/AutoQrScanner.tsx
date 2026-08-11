@@ -39,6 +39,7 @@ export const AutoQrScanner: React.FC<AutoQrScannerProps> = ({ onDetected, onErro
       const html5Qrcode = new Html5Qrcode(containerId)
       html5QrcodeRef.current = html5Qrcode
       const config = { fps: 10, qrbox: { width: 250, height: 250 } }
+      // @ts-ignore - html5-qrcode types may not match runtime signature
       await html5Qrcode.start(camId, config, (decodedToken: string) => {
         const now = Date.now()
         if (now - lastDetected.current < debounceMs) return
