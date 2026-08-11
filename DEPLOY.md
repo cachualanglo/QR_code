@@ -166,7 +166,7 @@ docker compose exec postgres psql -U attendance_user -d attendance_db
 
 | Username | Password | Role |
 |----------|----------|------|
-| admin | admin123 | Admin |
+| admin | *(đặt qua kênh nội bộ, xem TASK-03)* | Admin |
 
 ---
 
@@ -186,7 +186,7 @@ JWT_SECRET=<jwt_secret_32_ky_tu>
 # Company GPS
 COMPANY_LAT=10.7769
 COMPANY_LNG=106.7009
-COMPANY_RADIUS_METERS=500
+COMPANY_RADIUS_METERS=80
 ```
 
 ### Thay đổi cấu hình
