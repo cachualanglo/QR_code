@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.UUID;
 
 /**
@@ -76,11 +77,13 @@ public class QrService {
         qrRedisRepository.markTokenUsed(token);
     }
 
+    private static final ZoneId ZONE_VN = ZoneId.of("Asia/Ho_Chi_Minh");
+
     /**
      * Tìm ca đang active theo thời gian hiện tại.
      */
     private Shift findActiveShift() {
-        LocalTime now = LocalTime.now();
+        LocalTime now = LocalTime.now(ZONE_VN);
         return shiftRepository.findByIsActiveTrue().stream()
                 .filter(shift -> shift.isWithinShiftTime(now))
                 .findFirst()
