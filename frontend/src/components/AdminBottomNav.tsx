@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 const tabs = [
   { path: '/admin', label: 'Dashboard', icon: 'dashboard', exact: true },
+  { path: '/admin/location', label: 'Vị trí', icon: 'location_on', exact: true },
   { path: '/admin/shifts', label: 'Ca làm việc', icon: 'schedule', exact: true },
   { path: '/admin/employees', label: 'Nhân viên', icon: 'people', exact: false },
 ]

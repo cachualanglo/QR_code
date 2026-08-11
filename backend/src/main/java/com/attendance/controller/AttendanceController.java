@@ -46,7 +46,7 @@ public class AttendanceController {
     public ResponseEntity<AttendanceResponse> scan(
             @Valid @RequestBody AttendanceRequest request,
             Authentication authentication) {
-        return ResponseEntity.ok(attendanceService.scan(request.getToken(), authentication.getName()));
+        return ResponseEntity.ok(attendanceService.scan(request, authentication.getName()));
     }
 
     /**

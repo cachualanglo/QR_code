@@ -45,11 +45,11 @@ export default function HomePage() {
   }, [fetchTodayStatus])
 
   // Handle QR detected
-  const handleDetected = async (token: string) => {
+  const handleDetected = async (payload: { token: string; latitude?: number; longitude?: number; accuracy?: number }) => {
     setScanStatus('SCANNING')
     setErrorMsg('')
     try {
-      const res = await scanQr(token)
+      const res = await scanQr(payload)
       setResult(res)
       setScanStatus('SUCCESS')
 

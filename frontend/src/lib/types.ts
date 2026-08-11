@@ -25,6 +25,9 @@ export interface LogoutRequest {
 // ─── Attendance ─────────────────────────────────────────
 export interface ScanRequest {
   token: string
+  latitude?: number
+  longitude?: number
+  accuracy?: number
 }
 
 export type QrTokenType = 'CHECK_IN' | 'CHECK_OUT'

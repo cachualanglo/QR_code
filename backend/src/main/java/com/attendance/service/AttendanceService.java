@@ -37,18 +37,38 @@ public class AttendanceService {
     private final ShiftRepository shiftRepository;
     private final QrService qrService;
 
+    // Calculate distance between GPS and company location (Haversine); returns null if GPS not provided or location not configured
+    Double distanceToCompany(Double lat, Double lon) {
+        if (lat == null || lon == null) return null;
+        var locOpt = companyLocationRepository.findFirstByOrderByIdAsc();
+        if (locOpt.isEmpty()) return null;
+        var loc = locOpt.get();
+        double d = haversine(lat, lon, loc.getLatitude(), loc.getLongitude());
+        // optionally enforce radius here if needed
+        return d;
+    }
+
+    private double haversine(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371000; // metres
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
     /**
      * Scan QR — tự xác định CHECK_IN hoặc CHECK_OUT.
      */
     @Transactional
-    public AttendanceResponse scan(String token, String username) {
-        // 1. Validate QR token từ Redis
-        QrTokenData qrData = qrService.validateToken(token);
-
+    public AttendanceResponse scan(AttendanceRequest request, String username) {
+        // 1. Get user by username
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException("USER_NOT_FOUND", "Không tìm thấy người dùng"));
+        // 2. Validate QR token for this user
+        QrTokenData qrData = qrService.validateToken(request.getToken(), user.getId());
 
-        // 2. Lấy shift từ QR token
+        // 3. Lấy shift từ QR token
         Shift shift = shiftRepository.findByIdAndIsActiveTrue(qrData.getShiftId())
                 .orElseThrow(() -> new BusinessException("SHIFT_NOT_FOUND", "Ca làm việc không tồn tại"));
 
@@ -66,23 +86,35 @@ public class AttendanceService {
                 throw new BusinessException("CHECKIN_CUTOFF",
                         String.format("Đã quá giờ check-in. Cutoff: %s", shift.getCheckinCutoff()));
             }
-            return processCheckIn(user, shift, today, token);
+            return processCheckIn(user, shift, today, qrData.getToken(), user.getId(), request.getLatitude(), request.getLongitude(), request.getAccuracy());
         } else {
             record = existing.get();
             if (record.getCheckOutTime() == null) {
                 // Đã check-in nhưng chưa check-out → CHECK_OUT
-                return processCheckOut(record, user, token);
+                return processCheckOut(record, user, qrData.getToken(), user.getId(), request.getLatitude(), request.getLongitude(), request.getAccuracy());
             } else {
                 throw new BusinessException("ALREADY_COMPLETED", "Đã chấm công đủ trong ngày hôm nay");
             }
         }
     }
 
-    private AttendanceResponse processCheckIn(User user, Shift shift,
-                                               LocalDate today, String qrToken) {
-        LocalTime checkInTime = LocalTime.now(ZONE_VN);
-        int lateMinutes = shift.calculateLateMinutes(checkInTime);
+        private AttendanceResponse processCheckIn(User user, Shift shift,
+                                                   LocalDate today, String qrToken, Long userId,
+                                                   Double latitude, Double longitude, Double accuracy) {
+            LocalTime checkInTime = LocalTime.now(ZONE_VN);
+            int lateMinutes = shift.calculateLateMinutes(checkInTime);
         String status = lateMinutes > 0 ? "LATE" : "PRESENT";
+            Double distance = distanceToCompany(latitude, longitude);
+            // If GPS is provided, enforce radius check
+            if (distance != null) {
+                var opt = companyLocationRepository.findFirstByOrderByIdAsc();
+                if (opt.isPresent()) {
+                    var loc = opt.get();
+                    if (distance > loc.getRadiusMeters()) {
+                        throw new BusinessException("GEO_OUT_OF_RANGE", "Bạn đang ở ngoài phạm vi chấm công");
+                    }
+                }
+            }
 
         AttendanceRecord record = AttendanceRecord.builder()
                 .user(user)
@@ -92,10 +124,14 @@ public class AttendanceService {
                 .shift(shift)
                 .lateMinutes(lateMinutes)
                 .status(status)
+                .checkInLat(latitude)
+                .checkInLng(longitude)
+                .checkInDistanceM(distance)
+                .checkInAccuracy(accuracy)
                 .build();
 
         attendanceRecordRepository.save(record);
-        qrService.markTokenUsed(qrToken);
+        qrService.markTokenUsed(qrToken, userId);
 
         String message = lateMinutes > 0
                 ? String.format("Check-in thành công (ĐẾN MUỘN %d phút)", lateMinutes)
@@ -111,8 +147,9 @@ public class AttendanceService {
                 .message(message)
                 .build();
     }
-
-    private AttendanceResponse processCheckOut(AttendanceRecord record, User user, String qrToken) {
+    
+        private AttendanceResponse processCheckOut(AttendanceRecord record, User user, String qrToken, Long userId,
+                                                  Double latitude, Double longitude, Double accuracy) {
         Shift shift = record.getShift();
         LocalTime checkOutTime = LocalTime.now(ZONE_VN);
         int earlyLeaveMinutes = shift != null ? shift.calculateEarlyLeaveMinutes(checkOutTime) : 0;
@@ -120,12 +157,17 @@ public class AttendanceService {
         record.setCheckOutTime(LocalDateTime.now(ZONE_VN));
         record.setCheckOutQrToken(UUID.fromString(qrToken));
         record.setEarlyLeaveMinutes(earlyLeaveMinutes);
+        record.setCheckOutLat(latitude);
+        record.setCheckOutLng(longitude);
+        Double distOut = distanceToCompany(latitude, longitude);
+        record.setCheckOutDistanceM(distOut);
+        record.setCheckOutAccuracy(accuracy);
         if (earlyLeaveMinutes > 0) {
             record.setStatus("EARLY_LEAVE");
         }
 
         attendanceRecordRepository.save(record);
-        qrService.markTokenUsed(qrToken);
+        qrService.markTokenUsed(qrToken, userId);
 
         String message = earlyLeaveMinutes > 0
                 ? String.format("Check-out thành công (VỀ SỚM %d phút)", earlyLeaveMinutes)

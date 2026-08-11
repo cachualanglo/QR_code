@@ -71,9 +71,9 @@ public class QrRedisRepository {
     }
 
     /**
-     * Validate token: kiểm tra có phải token hiện tại + chưa dùng.
+     * Validate token: kiểm tra có phải token hiện tại + chưa dùng cho userId.
      */
-    public QrTokenData validateToken(String token) {
+    public QrTokenData validateToken(String token, Long userId) {
         QrTokenData current = getCurrentToken();
         if (current == null) {
             return null;
@@ -81,8 +81,8 @@ public class QrRedisRepository {
         if (!current.getToken().equals(token)) {
             return null;
         }
-        // Kiểm tra đã dùng chưa
-        Boolean isUsed = redis.hasKey(KEY_USED_PREFIX + token);
+        // Check per-user usage
+        Boolean isUsed = redis.hasKey(String.format("%s%s:%s", KEY_USED_PREFIX, token, userId));
         if (Boolean.TRUE.equals(isUsed)) {
             return null;
         }
@@ -92,9 +92,15 @@ public class QrRedisRepository {
     /**
      * Đánh dấu token đã sử dụng.
      */
-    public void markTokenUsed(String token) {
-        redis.opsForValue().set(KEY_USED_PREFIX + token, "1", USED_TOKEN_TTL_SECONDS, TimeUnit.SECONDS);
-        log.info("QR token marked as used in Redis: {}", token);
+    public void markTokenUsed(String token, Long userId) {
+        String key = String.format("qr:used:%s:%s", token, userId);
+        redis.opsForValue().set(key, "1");
+        log.info("QR token marked as used in Redis for user {}: {}", userId, token);
+    }
+
+    public boolean isTokenUsed(String token, Long userId) {
+        String key = String.format("qr:used:%s:%s", token, userId);
+        return redis.hasKey(key);
     }
 
     /**

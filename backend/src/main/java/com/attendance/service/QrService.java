@@ -59,11 +59,11 @@ public class QrService {
      * Validate token khi employee scan QR.
      * @return QrTokenData nếu hợp lệ, null nếu hết hạn/đã dùng/không tồn tại.
      */
-    public QrTokenData validateToken(String token) {
+    public QrTokenData validateToken(String token, Long userId) {
         if (token == null || token.isBlank()) {
             throw new BusinessException("QR_INVALID", "QR token không hợp lệ");
         }
-        QrTokenData data = qrRedisRepository.validateToken(token);
+        QrTokenData data = qrRedisRepository.validateToken(token, userId);
         if (data == null) {
             throw new BusinessException("QR_EXPIRED", "QR đã hết hạn hoặc không tồn tại");
         }
@@ -71,10 +71,10 @@ public class QrService {
     }
 
     /**
-     * Đánh dấu token đã dùng (sau khi scan thành công).
+     * Đánh dấu token đã dùng (sau khi scan thành công) cho một user.
      */
-    public void markTokenUsed(String token) {
-        qrRedisRepository.markTokenUsed(token);
+    public void markTokenUsed(String token, Long userId) {
+        qrRedisRepository.markTokenUsed(token, userId);
     }
 
     private static final ZoneId ZONE_VN = ZoneId.of("Asia/Ho_Chi_Minh");

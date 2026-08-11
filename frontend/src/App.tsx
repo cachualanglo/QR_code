@@ -12,6 +12,7 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import EmployeeListPage from './pages/admin/EmployeeListPage'
 import EmployeeDetailPage from './pages/admin/EmployeeDetailPage'
 import ShiftManagementPage from './pages/admin/ShiftManagementPage'
+import AdminLocationPage from './pages/admin/AdminLocationPage'
 import KioskAttendancePage from './pages/KioskAttendancePage'
 import { login as apiLogin } from './services/auth'
 
@@ -165,6 +166,7 @@ function App() {
           <Route path="/admin/shifts" element={<ShiftManagementPage />} />
           <Route path="/admin/employees" element={<EmployeeListPage />} />
           <Route path="/admin/employees/:id" element={<EmployeeDetailPage />} />
+          <Route path="/admin/location" element={<AdminLocationPage />} />
         </Route>
         {/* Kiosk: public, no auth */}
         <Route path="/kiosk/attendance" element={<KioskAttendancePage />} />

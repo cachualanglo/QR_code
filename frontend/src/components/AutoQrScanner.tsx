@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 
 type AutoQrScannerProps = {
-  onDetected?: (token: string) => void
+  onDetected?: (payload: { token: string; latitude?: number; longitude?: number; accuracy?: number }) => void
   onError?: (err: string) => void
   debounceMs?: number
 }
@@ -32,7 +32,16 @@ export const AutoQrScanner: React.FC<AutoQrScannerProps> = ({ onDetected, onErro
   const [cameras, setCameras] = useState<{ id: string; label: string }[]>([])
   const [cameraIdx, setCameraIdx] = useState(0)
   const lastDetected = useRef<number>(0)
-
+  const [location, setLocation] = useState<{ latitude: number; longitude: number; accuracy: number } | null>(null)
+  // Acquire GPS location once on mount (if available)
+  useEffect(() => {
+    if (!("geolocation" in navigator)) return
+    navigator.geolocation.getCurrentPosition((pos) => {
+      setLocation({ latitude: pos.coords.latitude, longitude: pos.coords.longitude, accuracy: pos.coords.accuracy })
+    }, () => {
+      // ignore errors
+    }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 10000 })
+  }, [])
   const findBackCamera = useCallback((cams: { id: string; label: string }[]) => {
     const idx = cams.findIndex(c =>
       c.label.toLowerCase().includes('back') ||
@@ -59,7 +68,7 @@ export const AutoQrScanner: React.FC<AutoQrScannerProps> = ({ onDetected, onErro
         const now = Date.now()
         if (now - lastDetected.current < debounceMs) return
         lastDetected.current = now
-        onDetected?.(decodedToken)
+        onDetected?.({ token: decodedToken, latitude: location?.latitude, longitude: location?.longitude, accuracy: location?.accuracy })
       }).catch((err: any) => onError?.(String(err)))
       // Re-inject after start to override library styles
       setTimeout(() => injectCameraStyles(containerId), 200)

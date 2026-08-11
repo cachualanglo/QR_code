@@ -18,12 +18,21 @@ public class ErrorResponse {
     private String error;
     private String code;
     private String message;
+    private String detail;
     private LocalDateTime timestamp;
 
     public ErrorResponse(String error, String code, String message) {
         this.error = error;
         this.code = code;
         this.message = message;
+        this.timestamp = LocalDateTime.now();
+    }
+
+    public ErrorResponse(String error, String code, String message, String detail) {
+        this.error = error;
+        this.code = code;
+        this.message = message;
+        this.detail = detail;
         this.timestamp = LocalDateTime.now();
     }
 }

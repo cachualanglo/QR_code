@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAllEmployees } from '@/services/admin'
+import { getLocation } from '@/services/admin'
 import { getDayStats } from '@/services/attendance'
 import type { EmployeeResponse, DayStatsResponse } from '@/lib/types'
 
@@ -10,6 +11,7 @@ export default function AdminDashboardPage() {
   const [employees, setEmployees] = useState<EmployeeResponse[]>([])
   const [todayStats, setTodayStats] = useState<DayStatsResponse[]>([])
   const [loading, setLoading] = useState(true)
+  const [location, setLocation] = useState<{ lat: number; lng: number; radiusMeters: number } | null>(null)
 
   useEffect(() => {
     async function fetchData() {
@@ -20,6 +22,12 @@ export default function AdminDashboardPage() {
         ])
         setEmployees(empList || [])
         setTodayStats(stats || [])
+        try {
+          const loc = await getLocation()
+          if (loc) setLocation({ lat: loc.lat, lng: loc.lng, radiusMeters: loc.radiusMeters })
+        } catch {
+          // ignore location fetch errors on dashboard load
+        }
       } catch {
         // Ignore errors on dashboard load
       } finally {
@@ -119,6 +127,14 @@ export default function AdminDashboardPage() {
 
       {/* Recent Check-ins */}
       <section>
+        {location && (
+          <div className="mb-4 p-3 bg-surface-container-lowest rounded-xl border border-outline-variant text-sm">
+            <strong>Địa điểm chấm công</strong>
+            <div className="mt-1">
+              Vĩ độ: {location.lat}, Kinh độ: {location.lng}, Phạm vi: {location.radiusMeters} m
+            </div>
+          </div>
+        )}
         <div className="flex justify-between items-end mb-3">
           <h3 className="text-lg font-semibold text-on-surface">Nhân viên gần đây</h3>
           <button
