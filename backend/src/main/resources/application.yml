@@ -24,13 +24,24 @@ server:
   port: 8080
   servlet:
     context-path: /
+  # SSL keystore for direct HTTPS (optional; Nginx TLS termination is recommended)
+  ssl:
+    enabled: ${SERVER_SSL_ENABLED:false}
+    key-store: ${SERVER_SSL_KEYSTORE:classpath:keystore.p12}
+    key-store-password: ${SERVER_SSL_KEYSTORE_PASSWORD:}
+    key-store-type: PKCS12
+    key-alias: ${SERVER_SSL_KEY_ALIAS:attendance}
 
 jwt:
-  secret: ${JWT_SECRET:attendance-qr-system-jwt-secret-key-256bits-minimum-required-for-hmac-sha}
+  secret: ${JWT_SECRET}
   access-token-expiration-minutes: ${JWT_ACCESS_EXPIRATION_MINUTES:30}
   refresh-token-expiration-days: ${JWT_REFRESH_EXPIRATION_DAYS:7}
 
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
 company:
-  latitude: ${COMPANY_LAT:10.7769}
-  longitude: ${COMPANY_LNG:106.7009}
-  radius-meters: ${COMPANY_RADIUS_METERS:10}
+  latitude: ${COMPANY_LAT:20.9926562}
+  longitude: ${COMPANY_LNG:105.8439679}
+  radius-meters: ${COMPANY_RADIUS_METERS:80}

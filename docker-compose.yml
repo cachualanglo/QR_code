@@ -47,9 +47,10 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_ACCESS_EXPIRATION_MINUTES: ${JWT_ACCESS_EXPIRATION_MINUTES:-30}
       JWT_REFRESH_EXPIRATION_DAYS: ${JWT_REFRESH_EXPIRATION_DAYS:-7}
-      COMPANY_LAT: ${COMPANY_LAT:-10.7769}
-      COMPANY_LNG: ${COMPANY_LNG:-106.7009}
-      COMPANY_RADIUS_METERS: ${COMPANY_RADIUS_METERS:-10}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      COMPANY_LAT: ${COMPANY_LAT:-20.9926562}
+      COMPANY_LNG: ${COMPANY_LNG:-105.8439679}
+      COMPANY_RADIUS_METERS: ${COMPANY_RADIUS_METERS:-80}
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
     depends_on:
@@ -57,11 +58,22 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - wget -qO- http://localhost:8080/actuator/health || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
     ports:
     - 3000:80
     - 443:443
