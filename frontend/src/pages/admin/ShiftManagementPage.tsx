@@ -28,8 +28,8 @@ export default function ShiftManagementPage() {
     try {
       const data = await getAllShifts()
       setShifts(data || [])
-    } catch {
-      // ignore
+    } catch (e: any) {
+      console.error('Failed to load shifts:', e)
     } finally {
       setLoading(false)
     }
@@ -162,8 +162,8 @@ export default function ShiftManagementPage() {
 
       {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-end justify-center">
-          <div className="bg-surface-container-lowest w-full max-w-[430px] rounded-t-2xl p-6 space-y-4">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-surface-container-lowest w-full max-w-[430px] rounded-2xl p-6 space-y-4 shadow-xl">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-on-surface">
                 {editingId ? 'Sửa ca' : 'Thêm ca mới'}
