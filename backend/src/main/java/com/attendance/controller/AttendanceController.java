@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -43,10 +44,8 @@ public class AttendanceController {
      * Scan QR — Check-in hoặc Check-out tự động
      */
     @PostMapping("/scan")
-    public ResponseEntity<AttendanceResponse> scan(
-            @Valid @RequestBody AttendanceRequest request,
-            Authentication authentication) {
-        return ResponseEntity.ok(attendanceService.scan(request, authentication.getName()));
+    public ResponseEntity<AttendanceResponse> scan(@Valid @RequestBody AttendanceRequest request) {
+        return ResponseEntity.ok(attendanceService.scan(request, currentUsername()));
     }
 
     /**
@@ -55,10 +54,8 @@ public class AttendanceController {
     @GetMapping("/stats")
     public ResponseEntity<List<DayStatsResponse>> getStats(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            Authentication authentication) {
-        Long userId = getUserId(authentication);
-        return ResponseEntity.ok(statsService.getDayStats(userId, startDate, endDate));
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        return ResponseEntity.ok(statsService.getDayStats(getUserId(), startDate, endDate));
     }
 
     /**
@@ -66,14 +63,20 @@ public class AttendanceController {
      */
     @GetMapping("/detail")
     public ResponseEntity<DayDetailResponse> getDetail(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            Authentication authentication) {
-        Long userId = getUserId(authentication);
-        return ResponseEntity.ok(statsService.getDayDetail(userId, date));
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return ResponseEntity.ok(statsService.getDayDetail(getUserId(), date));
     }
 
-    private Long getUserId(Authentication authentication) {
-        return userRepository.findByUsername(authentication.getName())
+    private String currentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new com.attendance.exception.BusinessException("UNAUTHORIZED", "Không xác định được người dùng");
+        }
+        return authentication.getName();
+    }
+
+    private Long getUserId() {
+        return userRepository.findByUsername(currentUsername())
                 .map(User::getId)
                 .orElse(1L);
     }

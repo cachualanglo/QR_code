@@ -13,6 +13,23 @@ spring:
       host: localhost
       port: 6379
 
+# JWT (required — no default fallback in application.yml)
+jwt:
+  secret: test-secret-key-for-unit-tests-only-min-32-chars-long!!
+  access-token-expiration-minutes: 30
+  refresh-token-expiration-days: 7
+
+# Company location defaults for tests
+company:
+  latitude: 20.9926562
+  longitude: 105.8439679
+  radius-meters: 80
+
+# CORS (test profile)
+app:
+  cors:
+    allowed-origins: http://localhost:5173
+
 # Disable rate limiter in tests
 attendance:
   rate-limit:

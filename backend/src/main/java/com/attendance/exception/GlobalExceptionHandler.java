@@ -22,7 +22,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
         log.warn("Business exception: {} - {}", ex.getCode(), ex.getMessage());
         ErrorResponse response = new ErrorResponse("BUSINESS_ERROR", ex.getCode(), ex.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        HttpStatus status = ex.getCode().startsWith("GEO_")
+                ? HttpStatus.UNPROCESSABLE_ENTITY
+                : HttpStatus.BAD_REQUEST;
+        return ResponseEntity.status(status).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

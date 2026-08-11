@@ -3,6 +3,8 @@ package com.attendance.controller;
 import com.attendance.dto.request.AttendanceRequest;
 import com.attendance.dto.response.AttendanceResponse;
 import com.attendance.exception.BusinessException;
+import com.attendance.monitor.RateLimiterService;
+import com.attendance.security.JwtAuthenticationFilter;
 import com.attendance.service.AttendanceService;
 import com.attendance.service.QrService;
 import com.attendance.service.StatsService;
@@ -19,12 +21,19 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.junit.jupiter.api.AfterEach;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import java.time.LocalTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @WebMvcTest(controllers = AttendanceController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -50,10 +59,20 @@ class AttendanceControllerGpsIntegrationTest {
         @MockBean
         private QrService qrService;
 
+        @MockBean
+        private RateLimiterService rateLimiterService;
+
+        @MockBean
+        private JwtAuthenticationFilter jwtAuthenticationFilter;
+
     private AttendanceResponse mockResponse;
 
     @BeforeEach
     void setUp() {
+        var authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("user1", null, authorities));
+
         mockResponse = AttendanceResponse.builder()
                 .action("CHECK_IN")
                 .checkInAt(LocalTime.now())
@@ -62,6 +81,11 @@ class AttendanceControllerGpsIntegrationTest {
                 .earlyLeaveMinutes(0)
                 .message("Check-in thành công")
                 .build();
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     @Test
@@ -78,7 +102,6 @@ class AttendanceControllerGpsIntegrationTest {
 
         mockMvc.perform(post("/api/attendance/scan")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer fake-jwt-token")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.action").value("CHECK_IN"))
@@ -99,7 +122,6 @@ class AttendanceControllerGpsIntegrationTest {
 
         mockMvc.perform(post("/api/attendance/scan")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer fake-jwt-token")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.action").value("CHECK_IN"));
@@ -124,7 +146,6 @@ class AttendanceControllerGpsIntegrationTest {
 
         mockMvc.perform(post("/api/attendance/scan")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer fake-jwt-token")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnprocessableEntity());
     }
@@ -137,7 +158,6 @@ class AttendanceControllerGpsIntegrationTest {
 
         mockMvc.perform(post("/api/attendance/scan")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer fake-jwt-token")
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }

@@ -1,4 +1,7 @@
 # application-local.yml — Backend chạy ngoài Docker, DB host = localhost
+jwt:
+  secret: ${JWT_SECRET:dev-only-local-secret-not-for-production-min-32-chars!!}
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:attendance_db}
