@@ -29,15 +29,23 @@ public class JwtTokenProvider {
 
     public String generateAccessToken(Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return generateAccessToken(userDetails.getUsername());
+        // Extract role from authorities (e.g. ROLE_ADMIN → ADMIN)
+        String role = userDetails.getAuthorities().stream()
+                .map(a -> a.getAuthority())
+                .filter(a -> a.startsWith("ROLE_"))
+                .map(a -> a.substring(5))
+                .findFirst()
+                .orElse("EMPLOYEE");
+        return generateAccessToken(userDetails.getUsername(), role);
     }
 
-    public String generateAccessToken(String username) {
+    public String generateAccessToken(String username, String role) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + jwtConfig.getAccessTokenExpirationMs());
 
         return Jwts.builder()
                 .subject(username)
+                .claim("role", role)
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(key)

@@ -92,7 +92,7 @@ public class AuthService {
 
         // Generate new tokens
         User user = storedToken.getUser();
-        String newAccessToken = jwtTokenProvider.generateAccessToken(user.getUsername());
+        String newAccessToken = jwtTokenProvider.generateAccessToken(user.getUsername(), user.getRole());
         String newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getUsername());
 
         RefreshToken newRefreshTokenEntity = RefreshToken.builder()

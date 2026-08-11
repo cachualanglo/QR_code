@@ -116,9 +116,12 @@ jobs:
 
       - name: ✅ Verify Deployment
         run: |
-          sleep 10
+          echo "⏳ Waiting for services to start..."
+          sleep 20
+          echo "--- Checking Frontend (port 3000) ---"
           curl -sf http://${{ secrets.SERVER_IP }}:3000 > /dev/null && echo "✅ Frontend OK" || echo "⚠️ Frontend check failed"
-          curl -sf http://${{ secrets.SERVER_IP }}:8080/api/auth/login > /dev/null && echo "✅ Backend OK" || echo "⚠️ Backend check failed"
+          echo "--- Checking Backend Health (port 8080) ---"
+          curl -sf http://${{ secrets.SERVER_IP }}:8080/actuator/health && echo "" && echo "✅ Backend OK" || echo "⚠️ Backend check failed"
 
       - name: 📢 Deployment Summary
         run: |
