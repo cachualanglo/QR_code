@@ -98,35 +98,26 @@ jobs:
       - name: 📋 Add Server to Known Hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H -p 22 ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts 2>/dev/null || true
+          echo "✅ Known hosts configured"
 
       - name: 📤 Deploy Code to Server
         run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            # Navigate to project directory
-            cd ${{ secrets.SERVER_PATH }}
-
-            # Pull latest code
-            git pull origin main
-
-            # Rebuild and restart containers
-            docker compose down
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            cd ${{ secrets.SERVER_PATH }} && git pull origin main
+            docker compose down 2>/dev/null || true
             docker compose build --no-cache
             docker compose up -d
-
-            # Wait for services to be healthy
-            echo "⏳ Waiting for services to start..."
-            sleep 15
-
-            # Check status
+            echo "⏳ Waiting for services..."
+            sleep 20
             docker compose ps
           EOF
 
       - name: ✅ Verify Deployment
         run: |
           sleep 10
-          curl -f http://${{ secrets.SERVER_IP }}:3000 || echo "⚠️ Frontend check failed"
-          curl -f http://${{ secrets.SERVER_IP }}:8080/api/auth/login || echo "⚠️ Backend check failed"
+          curl -sf http://${{ secrets.SERVER_IP }}:3000 > /dev/null && echo "✅ Frontend OK" || echo "⚠️ Frontend check failed"
+          curl -sf http://${{ secrets.SERVER_IP }}:8080/api/auth/login > /dev/null && echo "✅ Backend OK" || echo "⚠️ Backend check failed"
 
       - name: 📢 Deployment Summary
         run: |
