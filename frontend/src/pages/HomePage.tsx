@@ -141,22 +141,25 @@ export default function HomePage() {
 
       {/* Scan Card */}
       {scanStatus !== 'ALREADY_DONE' && (
-        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-6 text-center space-y-4">
-          <div className="space-y-1">
-            <p className="text-headline-sm font-bold text-on-surface">
-              {checkedIn && !checkedOut ? 'Quét QR để Check-out' : 'Quét mã QR để chấm công'}
-            </p>
-            <p className="text-body-md text-on-surface-variant">
+        <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant overflow-hidden">
+          {/* Header */}
+          <div className="bg-primary/5 px-5 py-4 text-center border-b border-outline-variant">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <span className="material-symbols-outlined text-primary text-xl">qr_code_scanner</span>
+              <p className="text-headline-sm font-bold text-on-surface">
+                {checkedIn && !checkedOut ? 'Check-out' : 'Chấm công'}
+              </p>
+            </div>
+            <p className="text-body-sm text-on-surface-variant">
               {checkedIn && !checkedOut
-                ? 'Đưa mã QR trên màn hình Kiosk vào khung để check-out'
-                : 'Đưa mã QR trên màn hình Kiosk vào khung ngắm'}
+                ? 'Quét QR trên Kiosk để check-out'
+                : 'Quét QR trên Kiosk để điểm danh'}
             </p>
           </div>
-          <div className="relative">
-            <AutoQrScanner onDetected={handleDetected} onError={(e) => { setScanStatus('ERROR'); setErrorMsg(e) }} />
-            {/* Scanning line animation overlay */}
-            <div className="absolute inset-0 pointer-events-none z-20 overflow-hidden rounded-lg">
-              <div className="scan-line" />
+          {/* Scanner */}
+          <div className="p-4">
+            <div className="relative mx-auto" style={{ maxWidth: 340 }}>
+              <AutoQrScanner onDetected={handleDetected} onError={(e) => { setScanStatus('ERROR'); setErrorMsg(e) }} />
             </div>
           </div>
         </div>
