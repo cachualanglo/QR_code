@@ -39,7 +39,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        List<String> origins = Arrays.asList(allowedOrigins.split(","));
+        // Support both HTTP and HTTPS origins
+        List<String> origins = new java.util.ArrayList<>();
+        for (String o : allowedOrigins.split(",")) {
+            origins.add(o.trim());
+            // Auto-add HTTPS variant for HTTP origins (e.g. http://ip:3000 → https://ip)
+            if (o.trim().startsWith("http://")) {
+                String host = o.trim().replace("http://", "");
+                origins.add("https://" + host.replace(":3000", "").replace(":5173", "").replace(":8080", ""));
+            }
+        }
         config.setAllowedOrigins(origins);
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
