@@ -6,9 +6,25 @@ type AutoQrScannerProps = {
   debounceMs?: number
 }
 
-// Auto QR scanner using html5-qrcode library.
-// This component renders a camera view and automatically detects QR tokens.
-// Prefers back camera by default, with a button to switch cameras.
+// Fixed camera size for consistent layout
+const CAMERA_SIZE = 280
+
+// Force video to fill container via injected style
+function injectCameraStyles(containerId: string) {
+  const styleId = `cam-style-${containerId}`
+  if (document.getElementById(styleId)) return
+  const style = document.createElement('style')
+  style.id = styleId
+  style.textContent = `
+    #${containerId} { width: ${CAMERA_SIZE}px !important; height: ${CAMERA_SIZE}px !important; overflow: hidden; border-radius: 12px; }
+    #${containerId} > div { width: 100% !important; height: 100% !important; }
+    #${containerId} video { width: 100% !important; height: 100% !important; object-fit: cover !important; }
+    #${containerId} img[alt="Info icon"] { display: none !important; }
+    #${containerId} span { display: none !important; }
+  `
+  document.head.appendChild(style)
+}
+
 export const AutoQrScanner: React.FC<AutoQrScannerProps> = ({ onDetected, onError, debounceMs = 800 }) => {
   const containerId = useMemo(() => 'qr-reader-' + Math.random().toString(36).slice(2, 7), [])
   const html5QrcodeRef = useRef<any>(null)
@@ -17,18 +33,16 @@ export const AutoQrScanner: React.FC<AutoQrScannerProps> = ({ onDetected, onErro
   const [cameraIdx, setCameraIdx] = useState(0)
   const lastDetected = useRef<number>(0)
 
-  // Find back camera index
   const findBackCamera = useCallback((cams: { id: string; label: string }[]) => {
-    const backIdx = cams.findIndex(c =>
+    const idx = cams.findIndex(c =>
       c.label.toLowerCase().includes('back') ||
       c.label.toLowerCase().includes('rear') ||
       c.label.toLowerCase().includes('environment') ||
       c.label.includes(' sau')
     )
-    return backIdx >= 0 ? backIdx : 0
+    return idx >= 0 ? idx : 0
   }, [])
 
-  // Start scanner with specific camera
   const startScanner = useCallback(async (camId: string) => {
     try {
       const { Html5Qrcode } = await import('html5-qrcode')
@@ -36,25 +50,25 @@ export const AutoQrScanner: React.FC<AutoQrScannerProps> = ({ onDetected, onErro
         try { await html5QrcodeRef.current.stop() } catch {}
         try { html5QrcodeRef.current.clear() } catch {}
       }
+      injectCameraStyles(containerId)
       const html5Qrcode = new Html5Qrcode(containerId)
       html5QrcodeRef.current = html5Qrcode
-      const config = { fps: 10, qrbox: { width: 250, height: 250 } }
-      // @ts-ignore - html5-qrcode types may not match runtime signature
+      const config = { fps: 10, qrbox: { width: 200, height: 200 } }
+      // @ts-ignore
       await html5Qrcode.start(camId, config, (decodedToken: string) => {
         const now = Date.now()
         if (now - lastDetected.current < debounceMs) return
         lastDetected.current = now
         onDetected?.(decodedToken)
-      }).catch((err: any) => {
-        onError?.(String(err))
-      })
+      }).catch((err: any) => onError?.(String(err)))
+      // Re-inject after start to override library styles
+      setTimeout(() => injectCameraStyles(containerId), 200)
       setScanning(true)
     } catch (e: any) {
       onError?.(e?.message ?? 'Camera initialization failed')
     }
   }, [containerId, debounceMs, onDetected, onError])
 
-  // Initial start — prefer back camera
   useEffect(() => {
     let cancel = false
     const init = async () => {
@@ -62,7 +76,7 @@ export const AutoQrScanner: React.FC<AutoQrScannerProps> = ({ onDetected, onErro
         const { Html5Qrcode } = await import('html5-qrcode')
         const cams = await Html5Qrcode.getCameras()
         if (cancel) return
-        if (cams && cams.length) {
+        if (cams?.length) {
           setCameras(cams)
           const backIdx = findBackCamera(cams)
           setCameraIdx(backIdx)
@@ -81,7 +95,6 @@ export const AutoQrScanner: React.FC<AutoQrScannerProps> = ({ onDetected, onErro
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Switch camera
   const handleSwitch = async () => {
     if (cameras.length <= 1) return
     const nextIdx = (cameraIdx + 1) % cameras.length
@@ -90,11 +103,9 @@ export const AutoQrScanner: React.FC<AutoQrScannerProps> = ({ onDetected, onErro
   }
 
   return (
-    <div className="flex flex-col items-center gap-3 w-full">
-      {/* Camera viewport */}
-      <div className="relative w-full overflow-hidden rounded-xl" style={{ maxWidth: 320, aspectRatio: '1 / 1' }}>
-        <div id={containerId} className="absolute inset-0 [&>div]:!w-full [&>div]:!h-full [&_video]:!object-cover" />
-      </div>
+    <div className="flex flex-col items-center gap-3">
+      {/* Fixed-size camera container */}
+      <div id={containerId} style={{ width: CAMERA_SIZE, height: CAMERA_SIZE }} />
       {/* Controls */}
       <div className="flex items-center gap-2">
         {cameras.length > 1 && (
