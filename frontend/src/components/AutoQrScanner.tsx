@@ -90,23 +90,26 @@ export const AutoQrScanner: React.FC<AutoQrScannerProps> = ({ onDetected, onErro
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-      <div id={containerId} style={{ width: 300, height: 300, border: '2px solid #ddd', borderRadius: 8 }} />
-      {cameras.length > 1 && (
-        <button
-          onClick={handleSwitch}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '8px 16px', borderRadius: 8,
-            border: '1px solid #003d9b', background: '#fff',
-            color: '#003d9b', fontSize: 14, cursor: 'pointer'
-          }}
-        >
-          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>cameraswitch</span>
-          Đổi camera
-        </button>
-      )}
-      <div style={{ color: '#666', fontSize: 13 }}>{scanning ? 'Đang quét...' : 'Chuẩn bị quét'}</div>
+    <div className="flex flex-col items-center gap-3 w-full">
+      {/* Camera viewport */}
+      <div className="relative w-full overflow-hidden rounded-xl" style={{ maxWidth: 320, aspectRatio: '1 / 1' }}>
+        <div id={containerId} className="absolute inset-0 [&>div]:!w-full [&>div]:!h-full [&_video]:!object-cover" />
+      </div>
+      {/* Controls */}
+      <div className="flex items-center gap-2">
+        {cameras.length > 1 && (
+          <button
+            onClick={handleSwitch}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-primary text-primary text-sm font-medium bg-white hover:bg-primary/5 active:bg-primary/10 transition-colors"
+          >
+            <span className="material-symbols-outlined text-base">cameraswitch</span>
+            Đổi camera
+          </button>
+        )}
+      </div>
+      <p className="text-xs text-on-surface-variant">
+        {scanning ? 'Đang quét...' : 'Chuẩn bị quét'}
+      </p>
     </div>
   )
 }
