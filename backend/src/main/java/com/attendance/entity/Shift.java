@@ -35,7 +35,7 @@ public class Shift {
 
     @Column(name = "qr_rotation_seconds", nullable = false)
     @Builder.Default
-    private int qrRotationSeconds = 300;
+    private int qrRotationSeconds = 60;
 
     @Column(name = "is_active", nullable = false)
     @Builder.Default
@@ -49,16 +49,26 @@ public class Shift {
     @Column(name = "updated_at")
     private ZonedDateTime updatedAt;
 
+    /** Default checkout window: 60 minutes after endTime */
+    private static final int DEFAULT_CHECKOUT_WINDOW_MINUTES = 60;
+
     /**
-     * Kiểm tra thời điểm hiện tại có nằm trong ca làm việc không
+     * Kiểm tra thời điểm hiện tại có nằm trong ca làm việc + checkout window không.
+     * QR vẫn được sinh trong checkout window để employee có thể check-out.
      */
     public boolean isWithinShiftTime(LocalTime now) {
+        // Normal shift window: startTime <= now <= endTime
         if (!now.isBefore(startTime) && !now.isAfter(endTime)) {
             return true;
         }
-        // Xử lý ca qua đêm (VD: 22:00 → 06:00)
+        // Checkout window: endTime < now <= endTime + 30min
+        if (!now.isAfter(endTime.plusMinutes(DEFAULT_CHECKOUT_WINDOW_MINUTES))) {
+            return true;
+        }
+        // Overnight shift (VD: 22:00 → 06:00)
         if (startTime.isAfter(endTime)) {
-            return !now.isAfter(endTime) || !now.isBefore(startTime);
+            LocalTime checkoutEnd = endTime.plusMinutes(DEFAULT_CHECKOUT_WINDOW_MINUTES);
+            return !now.isAfter(checkoutEnd) || !now.isBefore(startTime);
         }
         return false;
     }
@@ -68,6 +78,17 @@ public class Shift {
      */
     public boolean canCheckIn(LocalTime now) {
         return !now.isAfter(checkinCutoff);
+    }
+
+    /**
+     * Kiểm tra có thể check-out không.
+     * Check-out allowed from startTime until endTime + grace period.
+     */
+    public boolean canCheckOut(LocalTime now) {
+        if (now.isBefore(startTime)) {
+            return false; // before shift starts
+        }
+        return !now.isAfter(endTime.plusMinutes(DEFAULT_CHECKOUT_WINDOW_MINUTES));
     }
 
     /**

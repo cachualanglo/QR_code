@@ -17,8 +17,8 @@ export default function AdminLocationPage() {
       try {
         const data = await getLocation()
         setLocation(data)
-        setLat(String(data.lat))
-        setLng(String(data.lng))
+        setLat(String(data.latitude))
+        setLng(String(data.longitude))
         setRadius(String(data.radiusMeters))
       } catch {
         // Default values if fetch fails
@@ -78,8 +78,8 @@ export default function AdminLocationPage() {
     setSaving(true)
     setMessage(null)
     try {
-      await updateLocation({ lat: latNum, lng: lngNum, radiusMeters: radiusNum })
-      setLocation({ lat: latNum, lng: lngNum, radiusMeters: radiusNum })
+      await updateLocation({ latitude: latNum, longitude: lngNum, radiusMeters: radiusNum })
+      setLocation({ latitude: latNum, longitude: lngNum, radiusMeters: radiusNum })
       setMessage({ type: 'success', text: 'Cập nhật vị trí công ty thành công!' })
     } catch (err: any) {
       setMessage({ type: 'error', text: err.message || 'Cập nhật thất bại' })
@@ -116,11 +116,11 @@ export default function AdminLocationPage() {
           <div className="grid grid-cols-3 gap-3 text-sm">
             <div>
               <p className="text-on-surface-variant">Vĩ độ</p>
-              <p className="font-mono font-medium text-on-surface">{location.lat}</p>
+              <p className="font-mono font-medium text-on-surface">{location.latitude}</p>
             </div>
             <div>
               <p className="text-on-surface-variant">Kinh độ</p>
-              <p className="font-mono font-medium text-on-surface">{location.lng}</p>
+              <p className="font-mono font-medium text-on-surface">{location.longitude}</p>
             </div>
             <div>
               <p className="text-on-surface-variant">Bán kính</p>

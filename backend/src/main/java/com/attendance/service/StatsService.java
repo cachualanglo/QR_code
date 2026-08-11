@@ -89,13 +89,36 @@ public class StatsService {
                 .build();
     }
 
+    /**
+     * Determine attendance status with proper business logic.
+     * ABSENT: no record or no checkInTime
+     * ON_TIME: checked in on time, may or may not have checkout
+     * LATE: checked in late
+     * CHECKED_IN: checked in but not yet checked out (still within allowed time)
+     * COMPLETED: checked in + checked out
+     * MISSING_CHECKOUT: checked in but grace period expired, no checkout
+     */
     private String determineStatus(AttendanceRecord record, CompanyLocation location, LocalDate date) {
         if (isWeekend(date)) return "DAY_OFF";
         if (record == null || record.getCheckInTime() == null) return "ABSENT";
-        if (location != null && record.getCheckInTime().toLocalTime().isAfter(location.getCheckInEnd())) {
-            return record.getCheckOutTime() != null ? "LATE" : "MISSING_CHECKOUT";
+
+        // Determine if checked in late
+        boolean isLate = location != null && record.getCheckInTime().toLocalTime().isAfter(location.getCheckInEnd());
+
+        if (record.getCheckOutTime() != null) {
+            // Has both check-in and check-out → COMPLETED
+            return isLate ? "LATE" : "ON_TIME";
         }
-        return record.getCheckOutTime() != null ? "ON_TIME" : "MISSING_CHECKOUT";
+
+        // Checked in but no check-out
+        // Check if grace period has expired
+        LocalTime now = LocalTime.now(ZONE_VN);
+        if (record.getShift() != null && now.isAfter(record.getShift().getEndTime().plusMinutes(60))) {
+            return "MISSING_CHECKOUT";
+        }
+
+        // Still within working time / grace period → CHECKED_IN
+        return isLate ? "LATE" : "CHECKED_IN";
     }
 
     private boolean isWeekend(LocalDate date) {

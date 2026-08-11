@@ -109,14 +109,14 @@ export interface EmployeeResponse {
 }
 
 export interface UpdateLocationRequest {
-  lat: number
-  lng: number
+  latitude: number
+  longitude: number
   radiusMeters: number
 }
 
 export interface CompanyLocationResponse {
-  lat: number
-  lng: number
+  latitude: number
+  longitude: number
   radiusMeters: number
 }
 
@@ -158,4 +158,15 @@ export interface DayStatsResponse {
   checkInTime?: string
   checkOutTime?: string
   status: string
+}
+
+export interface DashboardEmployee {
+  employeeId: number
+  employeeCode: string
+  employeeName: string
+  status: 'ABSENT' | 'ON_TIME' | 'LATE' | 'CHECKED_IN' | 'COMPLETED' | 'MISSING_CHECKOUT' | 'DAY_OFF'
+  checkInTime?: string
+  checkOutTime?: string
+  lateMinutes: number
+  earlyLeaveMinutes: number
 }

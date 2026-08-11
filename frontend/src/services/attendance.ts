@@ -20,9 +20,9 @@ export async function scanQr(payload: ScanPayload): Promise<AttendanceResponse> 
 }
 
 export async function getDayStats(from: string, to: string): Promise<DayStatsResponse[]> {
-  return api.get<DayStatsResponse[]>(`/stats?from=${from}&to=${to}`)
+  return api.get<DayStatsResponse[]>(`/attendance/stats?startDate=${from}&endDate=${to}`)
 }
 
 export async function getDayDetail(date: string): Promise<DayDetailResponse> {
-  return api.get<DayDetailResponse>(`/stats/detail?date=${date}`)
+  return api.get<DayDetailResponse>(`/attendance/detail?date=${date}`)
 }

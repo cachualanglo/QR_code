@@ -6,6 +6,20 @@ import { getStoredTokens, clearTokens } from '@/lib/api'
 import { logout as apiLogout } from '@/services/auth'
 import type { UserProfile } from '@/lib/types'
 
+// Robust JWT payload decoder (base64url-safe)
+function parseJwt(token: string): any {
+  try {
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const json = decodeURIComponent(atob(base64).split('').map((c) => {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    }).join(''))
+    return JSON.parse(json)
+  } catch {
+    return null
+  }
+}
+
 interface AuthState {
   user: UserProfile | null
   isAuthenticated: boolean
@@ -31,15 +45,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const tokens = getStoredTokens()
     if (tokens?.accessToken) {
       try {
-        const payload = JSON.parse(atob(tokens.accessToken.split('.')[1]))
+        const payload = parseJwt(tokens.accessToken)
         // Check if token is expired
-        const expiresAt = payload.exp * 1000
+        const expiresAt = (payload?.exp ?? 0) * 1000
         if (Date.now() < expiresAt) {
-          setAuth({
-            user: { id: 0, employeeCode: payload.sub, username: payload.sub, role: payload.role || 'EMPLOYEE' },
-            isAuthenticated: true,
-            isLoading: false,
-          })
+          // If token has a role, initialize user with that role; otherwise treat as invalid
+          if (payload?.role) {
+            setAuth({
+              user: { id: 0, employeeCode: payload?.sub ?? '', username: payload?.sub ?? '', role: payload?.role },
+              isAuthenticated: true,
+              isLoading: false,
+            })
+          } else {
+            clearTokens()
+            setAuth({ user: null, isAuthenticated: false, isLoading: false })
+          }
           return
         }
       } catch {
@@ -52,13 +72,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginSuccess = useCallback((accessToken: string) => {
     try {
-      const payload = JSON.parse(atob(accessToken.split('.')[1]))
+      const payload = parseJwt(accessToken)
+      // Require role to be present in token; otherwise clear tokens and require re-login
+      if (!payload?.role) {
+        clearTokens()
+        setAuth({ user: null, isAuthenticated: false, isLoading: false })
+        return
+      }
       setAuth({
         user: {
-          id: payload.id || 0,
-          employeeCode: payload.sub,
-          username: payload.sub,
-          role: payload.role || 'EMPLOYEE',
+          id: payload?.id ?? 0,
+          employeeCode: payload?.sub ?? '',
+          username: payload?.sub ?? '',
+          role: payload?.role,
         },
         isAuthenticated: true,
         isLoading: false,

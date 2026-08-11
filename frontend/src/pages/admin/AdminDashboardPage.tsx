@@ -1,30 +1,25 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getAllEmployees } from '@/services/admin'
-import { getLocation } from '@/services/admin'
-import { getDayStats } from '@/services/attendance'
-import type { EmployeeResponse, DayStatsResponse } from '@/lib/types'
+import { getDashboardData, getLocation } from '@/services/admin'
+import type { DashboardEmployee } from '@/lib/types'
 
 // ─── Component ──────────────────────────────────────────
 export default function AdminDashboardPage() {
   const navigate = useNavigate()
-  const [employees, setEmployees] = useState<EmployeeResponse[]>([])
-  const [todayStats, setTodayStats] = useState<DayStatsResponse[]>([])
+  const [employees, setEmployees] = useState<DashboardEmployee[]>([])
   const [loading, setLoading] = useState(true)
   const [location, setLocation] = useState<{ lat: number; lng: number; radiusMeters: number } | null>(null)
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [empList, stats] = await Promise.all([
-          getAllEmployees(),
-          getDayStats(new Date().toISOString().slice(0, 10), new Date().toISOString().slice(0, 10)),
-        ])
-        setEmployees(empList || [])
-        setTodayStats(stats || [])
+        const today = new Date().toISOString().slice(0, 10)
+        const dashboardData = await getDashboardData(today)
+        setEmployees(dashboardData || [])
+
         try {
           const loc = await getLocation()
-          if (loc) setLocation({ lat: loc.lat, lng: loc.lng, radiusMeters: loc.radiusMeters })
+          if (loc) setLocation({ lat: loc.latitude, lng: loc.longitude, radiusMeters: loc.radiusMeters })
         } catch {
           // ignore location fetch errors on dashboard load
         }
@@ -38,8 +33,8 @@ export default function AdminDashboardPage() {
   }, [])
 
   const totalEmployees = employees.length
-  const checkedInToday = todayStats.filter(s => s.checkInTime).length
-  const pendingToday = totalEmployees - checkedInToday
+  const checkedInToday = employees.filter(e => ['ON_TIME', 'LATE', 'CHECKED_IN'].includes(e.status)).length
+  const pendingToday = employees.filter(e => e.status === 'ABSENT').length
 
   return (
     <div className="px-4 pt-4 pb-4">
@@ -150,10 +145,19 @@ export default function AdminDashboardPage() {
           ) : (
             employees.slice(0, 5).map((emp) => {
               const initials = emp.employeeCode.slice(-2).toUpperCase()
+              const statusColors: Record<string, { bg: string; text: string; label: string }> = {
+                'ON_TIME': { bg: 'bg-[#dcfce7]', text: 'text-[#1a7c3e]', label: '✓ Đúng giờ' },
+                'LATE': { bg: 'bg-[#fff8e1]', text: 'text-[#7c5c00]', label: '◐ Đi trễ' },
+                'CHECKED_IN': { bg: 'bg-[#e3f2fd]', text: 'text-[#1565c0]', label: '◉ Đang làm' },
+                'COMPLETED': { bg: 'bg-[#dcfce7]', text: 'text-[#1a7c3e]', label: '✓ Hoàn thành' },
+                'ABSENT': { bg: 'bg-[#ffdad6]', text: 'text-[#ba1a1a]', label: '○ Vắng' },
+                'MISSING_CHECKOUT': { bg: 'bg-surface-container', text: 'text-primary', label: '◑ Thiếu CO' },
+              }
+              const sc = statusColors[emp.status] || statusColors['ABSENT']
               return (
                 <div
-                  key={emp.id}
-                  onClick={() => navigate(`/admin/employees/${emp.id}`)}
+                  key={emp.employeeId}
+                  onClick={() => navigate(`/admin/employees/${emp.employeeId}`)}
                   className="flex items-center p-4 bg-surface-container-lowest rounded-xl shadow-sm cursor-pointer active:bg-surface-container transition-colors"
                 >
                   <div className="w-12 h-12 rounded-full bg-[#dcfce7] flex items-center justify-center text-xs font-semibold text-[#1a7c3e] flex-shrink-0">
@@ -161,9 +165,11 @@ export default function AdminDashboardPage() {
                   </div>
                   <div className="ml-3 flex-1">
                     <p className="text-sm font-medium text-on-surface">{emp.employeeCode}</p>
-                    <p className="text-xs text-on-surface-variant">{emp.role}</p>
+                    <p className="text-xs text-on-surface-variant">{emp.checkInTime ? `Check-in: ${emp.checkInTime}` : 'Chưa điểm danh'}</p>
                   </div>
-                  <span className="material-symbols-outlined text-outline-variant">chevron_right</span>
+                  <span className={`px-2 py-1 rounded-full ${sc.bg} ${sc.text} text-xs font-medium whitespace-nowrap`}>
+                    {sc.label}
+                  </span>
                 </div>
               )
             })

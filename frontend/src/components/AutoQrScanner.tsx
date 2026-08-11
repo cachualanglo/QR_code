@@ -31,13 +31,21 @@ export const AutoQrScanner: React.FC<AutoQrScannerProps> = ({ onDetected, onErro
   const [scanning, setScanning] = useState(false)
   const [cameras, setCameras] = useState<{ id: string; label: string }[]>([])
   const [cameraIdx, setCameraIdx] = useState(0)
-  const lastDetected = useRef<number>(0)
-  const [location, setLocation] = useState<{ latitude: number; longitude: number; accuracy: number } | null>(null)
+  // ─── ANTI-DUPLICATE LOCKS ───
+  // processingRef: short-lived lock during GPS fetch + onDetected call
+  const processingRef = useRef<boolean>(false)
+  // lastTokenRef: blocks same token permanently until a DIFFERENT token appears
+  const lastTokenRef = useRef<string | null>(null)
+  const [uiProcessing, setUiProcessing] = useState(false)
+  // Local location state is retained in locationRef for stable access during callbacks
+  // Ref to hold latest GPS data for use during scan callback
+  const locationRef = useRef<{ latitude: number; longitude: number; accuracy: number } | null>(null)
   // Acquire GPS location once on mount (if available)
   useEffect(() => {
     if (!("geolocation" in navigator)) return
     navigator.geolocation.getCurrentPosition((pos) => {
-      setLocation({ latitude: pos.coords.latitude, longitude: pos.coords.longitude, accuracy: pos.coords.accuracy })
+      const currentLocation = { latitude: pos.coords.latitude, longitude: pos.coords.longitude, accuracy: pos.coords.accuracy }
+      locationRef.current = currentLocation
     }, () => {
       // ignore errors
     }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 10000 })
@@ -65,10 +73,39 @@ export const AutoQrScanner: React.FC<AutoQrScannerProps> = ({ onDetected, onErro
       const config = { fps: 10, qrbox: { width: 200, height: 200 } }
       // @ts-ignore
       await html5Qrcode.start(camId, config, (decodedToken: string) => {
-        const now = Date.now()
-        if (now - lastDetected.current < debounceMs) return
-        lastDetected.current = now
-        onDetected?.({ token: decodedToken, latitude: location?.latitude, longitude: location?.longitude, accuracy: location?.accuracy })
+        // ─── LOCK 1: block while async GPS + callback is in-flight ───
+        if (processingRef.current) return
+
+        // ─── LOCK 2: block same token permanently until a NEW token appears ───
+        if (lastTokenRef.current === decodedToken) return
+
+        // ─── LOCK PASSED — acquire locks and process ───
+        processingRef.current = true
+        lastTokenRef.current = decodedToken
+        setUiProcessing(true)
+
+        const finalize = () => {
+          processingRef.current = false
+          setUiProcessing(false)
+        }
+
+        // Try to fetch the latest GPS data at the moment of scan
+        if (navigator.geolocation && 'getCurrentPosition' in navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition((pos) => {
+            const fresh = { latitude: pos.coords.latitude, longitude: pos.coords.longitude, accuracy: pos.coords.accuracy }
+            locationRef.current = fresh
+            onDetected?.({ token: decodedToken, latitude: fresh.latitude, longitude: fresh.longitude, accuracy: fresh.accuracy })
+            finalize()
+          }, () => {
+            const currentLocation = locationRef.current
+            onDetected?.({ token: decodedToken, latitude: currentLocation?.latitude, longitude: currentLocation?.longitude, accuracy: currentLocation?.accuracy })
+            finalize()
+          }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 10000 })
+        } else {
+          const currentLocation = locationRef.current
+          onDetected?.({ token: decodedToken, latitude: currentLocation?.latitude, longitude: currentLocation?.longitude, accuracy: currentLocation?.accuracy })
+          finalize()
+        }
       }).catch((err: any) => onError?.(String(err)))
       // Re-inject after start to override library styles
       setTimeout(() => injectCameraStyles(containerId), 200)
@@ -128,7 +165,7 @@ export const AutoQrScanner: React.FC<AutoQrScannerProps> = ({ onDetected, onErro
         )}
       </div>
       <p className="text-xs text-on-surface-variant">
-        {scanning ? 'Đang quét...' : 'Chuẩn bị quét'}
+        {scanning ? 'Đang quét...' : 'Chuẩn bị quét'}{uiProcessing ? ' • Đang xử lý...' : ''}
       </p>
     </div>
   )

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { getAllEmployees, getEmployeeStats } from '@/services/admin'
-import type { DayStatsResponse } from '@/lib/types'
+import { getDashboardData } from '@/services/admin'
+import type { DashboardEmployee } from '@/lib/types'
 
 // ─── Types ──────────────────────────────────────────────
 type EmployeeStatus = 'on-time' | 'late' | 'absent' | 'missing-checkout'
@@ -12,6 +12,7 @@ interface EmployeeWithStatus {
   code: string
   status: EmployeeStatus
   checkInTime?: string
+  backendStatus: DashboardEmployee['status']
 }
 
 // ─── Status Config ──────────────────────────────────────
@@ -35,28 +36,31 @@ export default function EmployeeListPage() {
   const [employees, setEmployees] = useState<EmployeeWithStatus[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Fetch employees + today's stats
+  // Fetch dashboard data (all employees merged with attendance)
   useEffect(() => {
     async function fetchData() {
       try {
         const today = new Date().toISOString().slice(0, 10)
-        const [empList] = await Promise.all([
-          getAllEmployees(),
-          getEmployeeStats(0, today, today).catch(() => [] as DayStatsResponse[]),
-        ])
+        const dashboardData = await getDashboardData(today)
 
-        // Map employees with status
-        const mapped: EmployeeWithStatus[] = (empList || []).map(emp => {
+        const mapped: EmployeeWithStatus[] = (dashboardData || []).map(emp => {
           let status: EmployeeStatus = 'absent'
-          let checkInTime: string | undefined
-
-          // For now, show all as absent until we have per-employee stats
+          switch (emp.status) {
+            case 'ON_TIME': status = 'on-time'; break
+            case 'LATE': status = 'late'; break
+            case 'CHECKED_IN': status = 'on-time'; break
+            case 'COMPLETED': status = 'on-time'; break
+            case 'MISSING_CHECKOUT': status = 'missing-checkout'; break
+            case 'ABSENT': status = 'absent'; break
+            case 'DAY_OFF': status = 'absent'; break
+          }
           return {
-            id: emp.id,
+            id: emp.employeeId,
             name: emp.employeeCode,
             code: emp.employeeCode,
             status,
-            checkInTime,
+            checkInTime: emp.checkInTime,
+            backendStatus: emp.status,
           }
         })
         setEmployees(mapped)

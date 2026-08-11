@@ -23,6 +23,12 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     // Kiểm tra user đã check-in hôm nay chưa
     boolean existsByUserIdAndRecordDate(Long userId, LocalDate recordDate);
 
+        // Check if any attendance record references a specific shift
+               boolean existsByShift_Id(Long shiftId);
+
+        // Check if there exists any attendance record for a given user (regardless of date)
+        boolean existsByUserId(Long userId);
+
     // Tìm danh sách user chưa check-in hôm nay (dùng cho notification reminder)
     @Query("SELECT u.id FROM User u WHERE u.id NOT IN " +
            "(SELECT ar.user.id FROM AttendanceRecord ar WHERE ar.recordDate = :today)")
@@ -32,4 +38,7 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
     @Query("SELECT ar.user.id FROM AttendanceRecord ar " +
            "WHERE ar.recordDate = :today AND ar.checkInTime IS NOT NULL AND ar.checkOutTime IS NULL")
     List<Long> findUserIdsMissingCheckoutToday(@Param("today") LocalDate today);
+
+    // Tìm tất cả record theo ngày (dùng cho admin dashboard)
+    List<AttendanceRecord> findByRecordDate(LocalDate recordDate);
 }

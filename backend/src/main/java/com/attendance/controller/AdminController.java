@@ -2,6 +2,7 @@ package com.attendance.controller;
 
 import com.attendance.dto.request.ShiftRequest;
 import com.attendance.dto.request.UpdateLocationRequest;
+import com.attendance.dto.response.DashboardEmployeeResponse;
 import com.attendance.dto.response.DayDetailResponse;
 import com.attendance.dto.response.DayStatsResponse;
 import com.attendance.dto.response.ShiftResponse;
@@ -50,6 +51,13 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+    // Delete a user (admin operation) - only if there is no attendance data
+    @DeleteMapping("/employees/{userId}")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable Long userId) {
+        adminService.deleteUser(userId);
+        return ResponseEntity.noContent().build();
+    }
+
     // ─── Location ───────────────────────────────────────────
 
     @PutMapping("/location")
@@ -92,5 +100,14 @@ public class AdminController {
             @PathVariable Long userId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return ResponseEntity.ok(adminService.getEmployeeDayDetail(userId, date));
+    }
+
+    // ─── Dashboard ─────────────────────────────────────────
+
+    @GetMapping("/dashboard")
+    public ResponseEntity<List<DashboardEmployeeResponse>> getDashboard(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        LocalDate targetDate = date != null ? date : java.time.LocalDate.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
+        return ResponseEntity.ok(adminService.getDashboardData(targetDate));
     }
 }

@@ -4,6 +4,7 @@
 import { api } from '@/lib/api'
 import type {
   EmployeeResponse,
+  DashboardEmployee,
   DayStatsResponse,
   DayDetailResponse,
   QrResponse,
@@ -57,4 +58,11 @@ export async function updateShift(id: number, data: ShiftRequest): Promise<Shift
 
 export async function deleteShift(id: number): Promise<void> {
   return api.delete(`/admin/shifts/${id}`)
+}
+
+// ─── Dashboard ─────────────────────────────────────────
+
+export async function getDashboardData(date?: string): Promise<DashboardEmployee[]> {
+  const params = date ? `?date=${date}` : ''
+  return api.get<DashboardEmployee[]>(`/admin/dashboard${params}`)
 }

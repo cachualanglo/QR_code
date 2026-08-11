@@ -43,8 +43,9 @@ public class AttendanceService {
         var locOpt = companyLocationRepository.findFirstByOrderByIdAsc();
         if (locOpt.isEmpty()) return null;
         var loc = locOpt.get();
+        log.info("[GEO DEBUG] companyLocation from DB: id={}, lat={}, lng={}, radius={}m", loc.getId(), loc.getLatitude(), loc.getLongitude(), loc.getRadiusMeters());
         double d = haversine(lat, lon, loc.getLatitude(), loc.getLongitude());
-        // optionally enforce radius here if needed
+        log.info("[GEO DEBUG] deviceLat={}, deviceLng={}, calculatedDistance={}m", lat, lon, d);
         return d;
     }
 
@@ -81,7 +82,6 @@ public class AttendanceService {
 
         if (existing.isEmpty()) {
             // Chưa có record → CHECK_IN
-            // Kiểm tra cutoff trước
             if (!shift.canCheckIn(now)) {
                 throw new BusinessException("CHECKIN_CUTOFF",
                         String.format("Đã quá giờ check-in. Cutoff: %s", shift.getCheckinCutoff()));
@@ -91,6 +91,12 @@ public class AttendanceService {
             record = existing.get();
             if (record.getCheckOutTime() == null) {
                 // Đã check-in nhưng chưa check-out → CHECK_OUT
+                // Cutoff CHECK_IN KHÔNG chặn CHECK_OUT
+                // Chỉ chặn khi quá grace period sau endTime
+                if (!shift.canCheckOut(now)) {
+                    throw new BusinessException("CHECKOUT_WINDOW_CLOSED",
+                            "Đã hết thời gian checkout, không thể check-out");
+                }
                 return processCheckOut(record, user, qrData.getToken(), user.getId(), request.getLatitude(), request.getLongitude(), request.getAccuracy());
             } else {
                 throw new BusinessException("ALREADY_COMPLETED", "Đã chấm công đủ trong ngày hôm nay");
@@ -104,17 +110,22 @@ public class AttendanceService {
             LocalTime checkInTime = LocalTime.now(ZONE_VN);
             int lateMinutes = shift.calculateLateMinutes(checkInTime);
         String status = lateMinutes > 0 ? "LATE" : "PRESENT";
-            Double distance = distanceToCompany(latitude, longitude);
-            // If GPS is provided, enforce radius check
-            if (distance != null) {
-                var opt = companyLocationRepository.findFirstByOrderByIdAsc();
-                if (opt.isPresent()) {
-                    var loc = opt.get();
-                    if (distance > loc.getRadiusMeters()) {
-                        throw new BusinessException("GEO_OUT_OF_RANGE", "Bạn đang ở ngoài phạm vi chấm công");
+                log.info("[GEO DEBUG] check-in request: deviceLat={}, deviceLng={}, accuracy={}", latitude, longitude, accuracy);
+                Double distance = distanceToCompany(latitude, longitude);
+                if (distance != null) {
+                    var locOpt = companyLocationRepository.findFirstByOrderByIdAsc();
+                    if (locOpt.isPresent()) {
+                        var loc = locOpt.get();
+                        log.info("[GEO DEBUG] CHECK-IN gate: distance={}m vs radius={}m => {}",
+                                distance, loc.getRadiusMeters(),
+                                distance > loc.getRadiusMeters() ? "BLOCKED" : "PASSED");
+                        if (distance > loc.getRadiusMeters()) {
+                            log.warn("[GEO] GEO_OUT_OF_RANGE (check-in): deviceLat={}, deviceLng={}, accuracy={}, distance={}m, companyLat={}, companyLng={}, radius={}",
+                                    latitude, longitude, accuracy, distance, loc.getLatitude(), loc.getLongitude(), loc.getRadiusMeters());
+                            throw new BusinessException("GEO_OUT_OF_RANGE", "Bạn đang ở ngoài phạm vi chấm công");
+                        }
                     }
                 }
-            }
 
         AttendanceRecord record = AttendanceRecord.builder()
                 .user(user)
@@ -152,6 +163,7 @@ public class AttendanceService {
                                                   Double latitude, Double longitude, Double accuracy) {
         Shift shift = record.getShift();
         LocalTime checkOutTime = LocalTime.now(ZONE_VN);
+        log.info("[GEO DEBUG] check-out request: deviceLat={}, deviceLng={}, accuracy={}", latitude, longitude, accuracy);
         int earlyLeaveMinutes = shift != null ? shift.calculateEarlyLeaveMinutes(checkOutTime) : 0;
 
         record.setCheckOutTime(LocalDateTime.now(ZONE_VN));
@@ -160,6 +172,7 @@ public class AttendanceService {
         record.setCheckOutLat(latitude);
         record.setCheckOutLng(longitude);
         Double distOut = distanceToCompany(latitude, longitude);
+        log.info("[GEO DEBUG] CHECK-OUT: distance={}m", distOut);
         record.setCheckOutDistanceM(distOut);
         record.setCheckOutAccuracy(accuracy);
         if (earlyLeaveMinutes > 0) {

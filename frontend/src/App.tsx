@@ -1,4 +1,17 @@
 import { useState, type FormEvent } from 'react'
+// Robust JWT payload decoder (base64url-safe)
+function parseJwt(token: string): any {
+  try {
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const json = decodeURIComponent(atob(base64).split('').map((c) => {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    }).join(''))
+    return JSON.parse(json)
+  } catch {
+    return null
+  }
+}
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
 import AppShell from './components/AppShell'
@@ -15,6 +28,8 @@ import ShiftManagementPage from './pages/admin/ShiftManagementPage'
 import AdminLocationPage from './pages/admin/AdminLocationPage'
 import KioskAttendancePage from './pages/KioskAttendancePage'
 import { login as apiLogin } from './services/auth'
+import { clearTokens } from './lib/api'
+import RequireRole from './components/RequireRole'
 
 // ─── Route Guard ────────────────────────────────────────
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -68,17 +83,28 @@ function LoginPage() {
     setLoading(true)
     try {
       const data = await apiLogin(username.trim(), password)
+
+      // Decode role from JWT to determine destination
+      const payload = parseJwt(data.accessToken)
+      if (!payload?.role) {
+        // No valid role, force re-login and clear tokens
+        setError('Token missing role, vui lòng đăng nhập lại')
+        setLoading(false)
+        clearTokens()
+        return
+      }
+      // Persist login state
       loginSuccess(data.accessToken)
 
-      // Decode role from JWT to redirect correctly
-      try {
-        const payload = JSON.parse(atob(data.accessToken.split('.')[1]))
-        const target = (location.state as { from?: { pathname: string } })?.from?.pathname
-          || (payload.role === 'ADMIN' ? '/admin' : '/')
-        navigate(target, { replace: true })
-      } catch {
-        navigate('/', { replace: true })
+      // Compute destination based on role and optional previous path
+      const fromPath = (location.state as { from?: { pathname: string } })?.from?.pathname
+      let target = '/'
+      if (payload.role === 'ADMIN') {
+        target = fromPath?.startsWith('/admin') ? fromPath! : '/admin'
+      } else {
+        target = fromPath && !fromPath.startsWith('/admin') ? fromPath! : '/'
       }
+      navigate(target, { replace: true })
     } catch (err: any) {
       setError(err.message || 'Đăng nhập thất bại')
     } finally {
@@ -161,7 +187,11 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/logout" element={<LogoutPage />} />
         </Route>
-        <Route element={<RequireAuth><AdminShell /></RequireAuth>}>
+        <Route element={
+          <RequireRole role="ADMIN">
+            <AdminShell />
+          </RequireRole>
+        }>
           <Route path="/admin" element={<AdminDashboardPage />} />
           <Route path="/admin/shifts" element={<ShiftManagementPage />} />
           <Route path="/admin/employees" element={<EmployeeListPage />} />
