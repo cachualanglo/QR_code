@@ -73,7 +73,7 @@ body {
   background: linear-gradient(90deg, transparent, #00d4ff, #003d9b, #00d4ff, transparent);
   border-radius: 2px;
   box-shadow: 0 0 12px 2px rgba(0, 212, 255, 0.6), 0 0 24px 4px rgba(0, 61, 155, 0.3);
-  animation: scan-sweep 2s ease-in-out infinite;
+  animation: scan-sweep 3s ease-in-out infinite;
 }
 
 @keyframes scan-sweep {
