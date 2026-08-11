@@ -1,0 +1,19 @@
+# application-test.yml — Unit & integration tests
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/attendance_test_db
+    username: postgres
+    password: test
+  jpa:
+    show-sql: false
+  flyway:
+    enabled: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# Disable rate limiter in tests
+attendance:
+  rate-limit:
+    enabled: false
