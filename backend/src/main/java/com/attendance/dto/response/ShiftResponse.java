@@ -1,6 +1,7 @@
 package com.attendance.dto.response;
 
 import com.attendance.entity.Shift;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class ShiftResponse {
     private LocalTime endTime;
     private LocalTime checkinCutoff;
     private int qrRotationSeconds;
+    @JsonProperty("isActive")
     private boolean isActive;
 
     public static ShiftResponse fromEntity(Shift shift) {

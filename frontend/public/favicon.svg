@@ -1,26 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Shadow -->
+  <ellipse cx="50" cy="88" rx="30" ry="5" fill="#000" opacity="0.1"/>
   <!-- Tomato body -->
-  <ellipse cx="50" cy="55" rx="42" ry="38" fill="#E53935"/>
-  <ellipse cx="50" cy="55" rx="42" ry="38" fill="url(#tomatoGrad)"/>
-  <!-- Tomato highlight -->
-  <ellipse cx="38" cy="45" rx="12" ry="18" fill="#EF5350" opacity="0.6"/>
+  <ellipse cx="50" cy="52" rx="40" ry="36" fill="#E53935"/>
+  <!-- Highlight -->
+  <ellipse cx="38" cy="42" rx="10" ry="16" fill="#EF5350" opacity="0.5"/>
+  <!-- Indent lines -->
+  <path d="M50 16 Q42 52 50 88" stroke="#C62828" stroke-width="1" fill="none" opacity="0.3"/>
+  <path d="M25 30 Q50 52 25 75" stroke="#C62828" stroke-width="1" fill="none" opacity="0.2"/>
+  <path d="M75 30 Q50 52 75 75" stroke="#C62828" stroke-width="1" fill="none" opacity="0.2"/>
   <!-- Stem -->
-  <rect x="47" y="12" width="6" height="14" rx="3" fill="#4CAF50"/>
-  <!-- Leaf -->
-  <path d="M50 18 Q65 8 72 15 Q62 12 50 20" fill="#66BB6A"/>
-  <path d="M50 18 Q35 8 28 15 Q38 12 50 20" fill="#66BB6A"/>
-  <!-- QR code icon on tomato -->
-  <rect x="36" y="42" width="28" height="28" rx="3" fill="white" opacity="0.9"/>
-  <rect x="39" y="45" width="8" height="8" rx="1" fill="#333"/>
-  <rect x="53" y="45" width="8" height="8" rx="1" fill="#333"/>
-  <rect x="39" y="59" width="8" height="8" rx="1" fill="#333"/>
-  <rect x="53" y="59" width="3" height="3" fill="#333"/>
-  <rect x="57" y="63" width="4" height="4" fill="#333"/>
-  <rect x="49" y="53" width="3" height="3" fill="#333"/>
-  <defs>
-    <radialGradient id="tomatoGrad" cx="40%" cy="40%">
-      <stop offset="0%" stop-color="#EF5350" stop-opacity="0.4"/>
-      <stop offset="100%" stop-color="#C62828" stop-opacity="0.3"/>
-    </radialGradient>
-  </defs>
+  <rect x="47" y="10" width="6" height="12" rx="3" fill="#5D4037"/>
+  <!-- Leaves -->
+  <ellipse cx="42" cy="16" rx="10" ry="4" fill="#43A047" transform="rotate(-30, 42, 16)"/>
+  <ellipse cx="58" cy="16" rx="10" ry="4" fill="#43A047" transform="rotate(30, 58, 16)"/>
+  <ellipse cx="50" cy="13" rx="6" ry="3" fill="#66BB6A"/>
 </svg>
