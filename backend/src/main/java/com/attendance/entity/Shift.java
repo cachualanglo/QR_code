@@ -35,7 +35,7 @@ public class Shift {
 
     @Column(name = "qr_rotation_seconds", nullable = false)
     @Builder.Default
-    private int qrRotationSeconds = 60;
+    private int qrRotationSeconds = 300;
 
     @Column(name = "is_active", nullable = false)
     @Builder.Default
