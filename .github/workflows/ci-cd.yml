@@ -103,15 +103,16 @@ jobs:
 
       - name: 📤 Deploy Code to Server
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            cd ${{ secrets.SERVER_PATH }} && git pull origin main
-            docker compose down 2>/dev/null || true
-            docker compose build --no-cache
-            docker compose up -d
-            echo "⏳ Waiting for services..."
-            sleep 20
-            docker compose ps
-          EOF
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} \
+            "cd ${{ secrets.SERVER_PATH }} && \
+             git pull origin main && \
+             docker compose down 2>/dev/null || true && \
+             docker compose build --no-cache && \
+             docker compose up -d && \
+             echo '⏳ Waiting for services...' && \
+             sleep 20 && \
+             docker compose ps"
 
       - name: ✅ Verify Deployment
         run: |
