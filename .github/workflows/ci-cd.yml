@@ -91,7 +91,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🔑 Setup SSH Key
-        uses: webfactory/ssh-agent@v9
+        uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
