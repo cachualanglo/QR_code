@@ -9,11 +9,15 @@ interface QrData {
   expiresAt?: number
 }
 
+/** Refresh 2s trước khi QR hết hạn để tránh khoảng trống */
+const REFRESH_BUFFER_MS = 2000
+
 export default function KioskAttendancePage() {
   const [qrData, setQrData] = useState<QrData | null>(null)
   const [countdown, setCountdown] = useState(0)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [isNoActiveShift, setIsNoActiveShift] = useState(false)
 
   // Fetch current QR from backend (public endpoint, no auth)
   const fetchQr = useCallback(async () => {
@@ -21,10 +25,18 @@ export default function KioskAttendancePage() {
       const res = await fetch('/api/attendance/qr/current')
       if (!res.ok) {
         const body = await res.json().catch(() => null)
+        if (body?.errorCode === 'NO_ACTIVE_SHIFT') {
+          setIsNoActiveShift(true)
+          setQrData(null)
+          setError('')
+          setLoading(false)
+          return
+        }
         throw new Error(body?.message || `HTTP ${res.status}`)
       }
       const data: QrData = await res.json()
       setQrData(data)
+      setIsNoActiveShift(false)
       setError('')
     } catch (err: any) {
       setError(err.message || 'Không thể tải QR')
@@ -34,23 +46,22 @@ export default function KioskAttendancePage() {
     }
   }, [])
 
-  // Initial fetch + auto-refresh every 5s (keeps QR alive via backend Redis TTL)
+  // Initial fetch on mount
   useEffect(() => {
     fetchQr()
-    const interval = setInterval(fetchQr, 5000)
-    return () => clearInterval(interval)
   }, [fetchQr])
 
-  // Countdown timer — ticks every second
+  // Single countdown timer — refresh when approaching expiry
   useEffect(() => {
     if (!qrData?.expiresAt) return
 
     const tick = () => {
-      const remaining = Math.max(0, Math.ceil((qrData.expiresAt! - Date.now()) / 1000))
-      setCountdown(remaining)
+      const remainingMs = qrData.expiresAt! - Date.now()
+      const remainingSec = Math.max(0, Math.ceil(remainingMs / 1000))
+      setCountdown(remainingSec)
 
-      // Auto-refresh when expired
-      if (remaining <= 0) {
+      // Refresh sớm 2s trước khi hết hạn để tránh khoảng trống
+      if (remainingMs <= REFRESH_BUFFER_MS) {
         fetchQr()
       }
     }
@@ -87,6 +98,18 @@ export default function KioskAttendancePage() {
         {loading ? (
           <div className="w-[260px] h-[260px] flex items-center justify-center">
             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : isNoActiveShift ? (
+          <div className="w-[260px] h-[260px] flex flex-col items-center justify-center gap-3">
+            <span className="material-symbols-outlined text-[#f57c00] text-5xl">schedule</span>
+            <p className="text-body-lg font-semibold text-on-surface text-center">Chưa có ca hoạt động</p>
+            <p className="text-body-sm text-on-surface-variant text-center">Vui lòng liên hệ Admin để mở ca</p>
+            <button
+              onClick={fetchQr}
+              className="mt-2 px-4 py-2 bg-primary text-white rounded-xl text-sm font-semibold"
+            >
+              Thử lại
+            </button>
           </div>
         ) : error ? (
           <div className="w-[260px] h-[260px] flex flex-col items-center justify-center gap-3">

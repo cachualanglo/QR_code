@@ -22,9 +22,22 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex) {
         log.warn("Business exception: {} - {}", ex.getCode(), ex.getMessage());
         ErrorResponse response = new ErrorResponse("BUSINESS_ERROR", ex.getCode(), ex.getMessage());
-        HttpStatus status = ex.getCode().startsWith("GEO_")
-                ? HttpStatus.UNPROCESSABLE_ENTITY
-                : HttpStatus.BAD_REQUEST;
+        HttpStatus status;
+        switch (ex.getCode()) {
+            case "NO_ACTIVE_SHIFT":
+                status = HttpStatus.NOT_FOUND;
+                break;
+            case "SHIFT_NOT_FOUND":
+            case "USER_NOT_FOUND":
+            case "QR_EXPIRED":
+            case "QR_INVALID":
+                status = HttpStatus.NOT_FOUND;
+                break;
+            default:
+                status = ex.getCode().startsWith("GEO_")
+                        ? HttpStatus.UNPROCESSABLE_ENTITY
+                        : HttpStatus.BAD_REQUEST;
+        }
         return ResponseEntity.status(status).body(response);
     }
 

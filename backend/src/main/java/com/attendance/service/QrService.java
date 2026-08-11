@@ -33,9 +33,21 @@ public class QrService {
      * Nếu token hết hạn hoặc chưa có → tạo mới.
      */
     public QrResponse getCurrentQr() {
-        // 1. Kiểm tra Redis có token đang active không
+        // 1. Tìm ca đang active TRƯỚC
+        Shift activeShift = findActiveShift();
         QrTokenData existing = qrRedisRepository.getCurrentToken();
-        if (existing != null) {
+
+        // 2. Không có ca active → xoá token cũ nếu có
+        if (activeShift == null) {
+            if (existing != null) {
+                qrRedisRepository.deleteCurrentToken();
+            }
+            throw new BusinessException("NO_ACTIVE_SHIFT", "Hiện không có ca nào đang hoạt động");
+        }
+
+        // 3. Token cũ vẫn thuộc ca hiện tại → dùng lại
+        if (existing != null && existing.getShiftId() != null
+                && existing.getShiftId().equals(activeShift.getId())) {
             return QrResponse.builder()
                     .token(existing.getToken())
                     .shiftId(existing.getShiftId())
@@ -45,13 +57,7 @@ public class QrService {
                     .build();
         }
 
-        // 2. Tìm ca đang active
-        Shift activeShift = findActiveShift();
-        if (activeShift == null) {
-            throw new BusinessException("NO_ACTIVE_SHIFT", "Hiện không có ca nào đang hoạt động");
-        }
-
-        // 3. Tạo token mới
+        // 4. Ca đã đổi hoặc chưa có token → tạo mới
         return generateNewToken(activeShift);
     }
 
