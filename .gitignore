@@ -46,6 +46,3 @@ playwright.config.ts
 package.json
 package-lock.json
 graphify-out/
-backend/build.gradle
-backend/settings.gradle
-backend/gradle/
