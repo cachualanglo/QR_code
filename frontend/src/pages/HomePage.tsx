@@ -142,14 +142,21 @@ export default function HomePage() {
       {/* Scan Card */}
       {scanStatus !== 'ALREADY_DONE' && (
         <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant p-6 text-center space-y-4">
-          <div className="w-36 h-36 mx-auto bg-white rounded-xl border-2 border-primary flex items-center justify-center relative">
-            <span className="material-symbols-outlined text-7xl text-primary">
+          <div className="w-40 h-40 mx-auto bg-white rounded-xl border-2 border-primary flex items-center justify-center relative overflow-hidden">
+            <span className="material-symbols-outlined text-7xl text-primary z-10">
               {scanStatus === 'SCANNING' ? 'qr_code_scanner' : 'qr_code_2'}
             </span>
-            <div className="absolute top-1 left-1 w-4 h-4 border-t-2 border-l-2 border-primary rounded-tl-sm" />
-            <div className="absolute top-1 right-1 w-4 h-4 border-t-2 border-r-2 border-primary rounded-tr-sm" />
-            <div className="absolute bottom-1 left-1 w-4 h-4 border-b-2 border-l-2 border-primary rounded-bl-sm" />
-            <div className="absolute bottom-1 right-1 w-4 h-4 border-b-2 border-r-2 border-primary rounded-br-sm" />
+            {/* Corner brackets */}
+            <div className="absolute top-1 left-1 w-5 h-5 border-t-[3px] border-l-[3px] border-primary rounded-tl-sm" />
+            <div className="absolute top-1 right-1 w-5 h-5 border-t-[3px] border-r-[3px] border-primary rounded-tr-sm" />
+            <div className="absolute bottom-1 left-1 w-5 h-5 border-b-[3px] border-l-[3px] border-primary rounded-bl-sm" />
+            <div className="absolute bottom-1 right-1 w-5 h-5 border-b-[3px] border-r-[3px] border-primary rounded-br-sm" />
+            {/* Scanning line animation */}
+            {scanStatus === 'SCANNING' && (
+              <div className="absolute inset-x-0 top-0 h-full pointer-events-none z-20">
+                <div className="scan-line" />
+              </div>
+            )}
           </div>
           <div className="space-y-1">
             <p className="text-headline-sm font-bold text-on-surface">

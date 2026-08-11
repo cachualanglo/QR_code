@@ -63,3 +63,21 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* QR Scan line animation */
+.scan-line {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #00d4ff, #003d9b, #00d4ff, transparent);
+  border-radius: 2px;
+  box-shadow: 0 0 12px 2px rgba(0, 212, 255, 0.6), 0 0 24px 4px rgba(0, 61, 155, 0.3);
+  animation: scan-sweep 2s ease-in-out infinite;
+}
+
+@keyframes scan-sweep {
+  0% { top: 8px; }
+  50% { top: calc(100% - 11px); }
+  100% { top: 8px; }
+}
