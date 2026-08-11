@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Tomato body -->
+  <ellipse cx="50" cy="55" rx="42" ry="38" fill="#E53935"/>
+  <ellipse cx="50" cy="55" rx="42" ry="38" fill="url(#tomatoGrad)"/>
+  <!-- Tomato highlight -->
+  <ellipse cx="38" cy="45" rx="12" ry="18" fill="#EF5350" opacity="0.6"/>
+  <!-- Stem -->
+  <rect x="47" y="12" width="6" height="14" rx="3" fill="#4CAF50"/>
+  <!-- Leaf -->
+  <path d="M50 18 Q65 8 72 15 Q62 12 50 20" fill="#66BB6A"/>
+  <path d="M50 18 Q35 8 28 15 Q38 12 50 20" fill="#66BB6A"/>
+  <!-- QR code icon on tomato -->
+  <rect x="36" y="42" width="28" height="28" rx="3" fill="white" opacity="0.9"/>
+  <rect x="39" y="45" width="8" height="8" rx="1" fill="#333"/>
+  <rect x="53" y="45" width="8" height="8" rx="1" fill="#333"/>
+  <rect x="39" y="59" width="8" height="8" rx="1" fill="#333"/>
+  <rect x="53" y="59" width="3" height="3" fill="#333"/>
+  <rect x="57" y="63" width="4" height="4" fill="#333"/>
+  <rect x="49" y="53" width="3" height="3" fill="#333"/>
+  <defs>
+    <radialGradient id="tomatoGrad" cx="40%" cy="40%">
+      <stop offset="0%" stop-color="#EF5350" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#C62828" stop-opacity="0.3"/>
+    </radialGradient>
+  </defs>
+</svg>
